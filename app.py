@@ -5,7 +5,7 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        calendars =
+        calendars = list()
         for i in range(len(request.form.getlist("ical_url"))):
             calendar = {
                 "ical_url": request.form.getlist("ical_url")[i],
