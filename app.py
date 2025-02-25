@@ -1,11 +1,9 @@
 from flask import Flask, render_template, request
-import logging
 
 from utils.cal_utils import generate_image, get_buffer
 from utils.image_utils import change_orientation, resize_image
 
 app = Flask(__name__)
-logger = logging.getLogger(__name__)
 
 calendars = [
     {"ical_url": "https://example.com/calendar1.ics", "calendar_name": "Example Name", "color": "#00FF00"},
@@ -42,8 +40,9 @@ def getCal():
     image = resize_image(image, resolution)
 
     buf = get_buffer(resolution[0], resolution[1], image)
-    logger.info("buffer\n")
-    logger.info(buf)
+
+    # Render the template with the image and buf data
+    return render_template("calendar.html", image=image, buf=buf)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
