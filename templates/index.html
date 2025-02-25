@@ -20,6 +20,18 @@
         .mdl-textfield {
             width: 100%;
         }
+        .calendar {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 2px;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12), 0 3px 1px -2px rgba(0,0,0,.2);
+        }
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -45,11 +57,14 @@
             <button type="button" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="addCalendar()">
                 <i class="material-icons">add</i>
             </button>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input class="mdl-textfield__input" type="number" id="update_frequency" name="update_frequency" value="60" required>
-                <label class="mdl-textfield__label" for="update_frequency">Update Frequency (minutes)</label>
+
+            <div class="action-row">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 48%;">
+                    <input class="mdl-textfield__input" type="number" id="update_frequency" name="update_frequency" value="60" required>
+                    <label class="mdl-textfield__label" for="update_frequency">Update Frequency (minutes)</label>
+                </div>
+                <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Save</button>
             </div>
-            <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Save</button>
         </form>
     </div>
     <script>
