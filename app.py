@@ -33,7 +33,7 @@ def index():
 @app.route("/getCal", methods=["GET"])
 def getCal():
     resolution = ((800, 480))
-    image = generate_image(width=resolution[0], height=resolution[1], ical_url=calendars[0].get('ical_url'), start_time=8, end_time=22, 
+    image = generate_image(resolution=resolution, ical_url=calendars[0].get('ical_url'), start_time=8, end_time=22, 
                    days_to_show=5, event_card_radius=10, event_text_size=14, title_text_size=18 ,grid_color="#000000", 
                    event_color=calendars[0].get('color'), event_text_color="#ffffff", legend_color= "#000000")
     
