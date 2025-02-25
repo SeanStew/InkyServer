@@ -1,11 +1,79 @@
+<!DOCTYPE html>
 <html>
-
 <head>
-    <link rel="stylesheet" href="/static/style.css" />
+    <title>Calendar Settings</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <style>
+        body {
+            background: #f5f5f5;
+            font-family: Roboto, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12), 0 1px 5px 0 rgba(0,0,0,.2);
+        }
+        .mdl-textfield {
+            width: 100%;
+        }
+    </style>
 </head>
-
 <body>
-    <h1>My Website</h1>
+    <div class="container">
+        <h2>Calendar Settings</h2>
+        <form method="POST">
+            <div id="calendars">
+                <div class="calendar">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="ical_url" name="ical_url" required>
+                        <label class="mdl-textfield__label" for="ical_url">iCal URL</label>
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="calendar_name" name="calendar_name" required>
+                        <label class="mdl-textfield__label" for="calendar_name">Calendar Name</label>
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="color" id="color" name="color" value="#000000" required>
+                        <label class="mdl-textfield__label" for="color">Color</label>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="addCalendar()">
+                <i class="material-icons">add</i>
+            </button>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="number" id="update_frequency" name="update_frequency" value="60" required>
+                <label class="mdl-textfield__label" for="update_frequency">Update Frequency (minutes)</label>
+            </div>
+            <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Save</button>
+        </form>
+    </div>
+    <script>
+        function addCalendar() {
+            let calendars = document.getElementById("calendars");
+            let calendar = document.createElement("div");
+            calendar.classList.add("calendar");
+            calendar.innerHTML = `
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="ical_url" name="ical_url" required>
+                    <label class="mdl-textfield__label" for="ical_url">iCal URL</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="calendar_name" name="calendar_name" required>
+                    <label class="mdl-textfield__label" for="calendar_name">Calendar Name</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="color" id="color" name="color" value="#000000" required>
+                    <label class="mdl-textfield__label" for="color">Color</label>
+                </div>
+            `;
+            calendars.appendChild(calendar);
+            componentHandler.upgradeDom(); // Upgrade new elements to Material Design Lite components
+        }
+    </script>
 </body>
-
 </html>
