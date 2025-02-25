@@ -1,0 +1,8 @@
+flask
+requests
+urllib3
+pillow
+pytz
+numpy
+ics
+datetime
