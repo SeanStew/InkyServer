@@ -48,8 +48,8 @@ def generate_image(resolution, ical_url, start_time, end_time,
             # Image generation (similar to before)
             img = Image.new('RGBA', resolution, background_color)
             draw = ImageDraw.Draw(img)
-            titleFont = get_font("jost-semibold", title_text_size)
-            textFont = get_font("jost-semibold", event_text_size)
+            titleFont = get_font("roboto-bold", title_text_size)
+            textFont = get_font("roboto", event_text_size)
 
             # --- Grid Setup ---
             grid_start_x = 40  # Left margin for time labels
