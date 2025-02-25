@@ -39,6 +39,9 @@ def getCal():
     image = change_orientation(image, "horizontal")
     image = resize_image(image, resolution)
 
+    # Save the image
+    image.save(os.path.join("static", 'calendar.png'))
+
     buf = get_buffer(resolution[0], resolution[1], image)
 
     # Render the template with the image and buf data
