@@ -12,20 +12,27 @@
         <h2>Calendar Settings</h2>
         <form method="POST">
             <div id="calendars">
+                {% for calendar in calendars %}
                 <div class="calendar">
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <input class="mdl-textfield__input" type="text" id="ical_url" name="ical_url" required>
+                        <input class="mdl-textfield__input" type="text" id="ical_url" name="ical_url" value="{{ calendar.ical_url }}" required>
                         <label class="mdl-textfield__label" for="ical_url">iCal URL</label>
                     </div>
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <input class="mdl-textfield__input" type="text" id="calendar_name" name="calendar_name" required>
+                        <input class="mdl-textfield__input" type="text" id="calendar_name" name="calendar_name" value="{{ calendar.calendar_name }}" required>
                         <label class="mdl-textfield__label" for="calendar_name">Calendar Name</label>
                     </div>
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <input class="mdl-textfield__input" type="color" id="color" name="color" value="#00ff00" required>
+                        <input class="mdl-textfield__input" type="color" id="color" name="color" value="{{ calendar.color }}" required>
                         <label class="mdl-textfield__label" for="color">Color</label>
                     </div>
+                    {% if loop.index > 1 %}
+                    <button type="button" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="removeCalendar(this)">
+                        <i class="material-icons">remove_circle_outline</i>
+                    </button>
+                    {% endif %}
                 </div>
+                {% endfor %}
             </div>
             <button type="button" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored add-calendar-button" onclick="addCalendar()">
                 <i class="material-icons">add</i>
@@ -33,7 +40,7 @@
 
             <div class="action-row">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 48%;">
-                    <input class="mdl-textfield__input" type="number" id="update_frequency" name="update_frequency" value="60" required>
+                    <input class="mdl-textfield__input" type="number" id="update_frequency" name="update_frequency" value="{{ update_frequency }}" required>
                     <label class="mdl-textfield__label" for="update_frequency">Update Frequency (minutes)</label>
                 </div>
                 <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Save</button>
@@ -55,7 +62,7 @@
                     <label class="mdl-textfield__label" for="calendar_name">Calendar Name</label>
                 </div>
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="color" id="color" name="color" value="#00ff00" required>
+                    <input class="mdl-textfield__input" type="color" id="color" name="color" value="#00FF00" required>
                     <label class="mdl-textfield__label" for="color">Color</label>
                 </div>
                 <button type="button" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="removeCalendar(this)">
@@ -68,7 +75,10 @@
 
         function removeCalendar(button) {
             let calendar = button.parentNode;
-            calendar.remove();
+            let calendars = document.getElementById("calendars");
+            if (calendars.children.length > 1) {
+                calendar.remove();
+            }
         }
 
     </script>
