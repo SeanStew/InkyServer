@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
@@ -22,9 +22,12 @@
                         <label class="mdl-textfield__label" for="calendar_name">Calendar Name</label>
                     </div>
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <input class="mdl-textfield__input" type="color" id="color" name="color" value="#00ff00" required>
+                        <input class="mdl-textfield__input" type="color" id="color" name="color" value="#000000" required>
                         <label class="mdl-textfield__label" for="color">Color</label>
                     </div>
+                    <button type="button" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="removeCalendar(this)">
+                        <i class="material-icons">remove_circle_outline</i>
+                    </button>
                 </div>
             </div>
             <button type="button" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored add-calendar-button" onclick="addCalendar()">
@@ -55,13 +58,22 @@
                     <label class="mdl-textfield__label" for="calendar_name">Calendar Name</label>
                 </div>
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="color" id="color" name="color" value="#00ff00" required>
+                    <input class="mdl-textfield__input" type="color" id="color" name="color" value="#000000" required>
                     <label class="mdl-textfield__label" for="color">Color</label>
                 </div>
+                <button type="button" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="removeCalendar(this)">
+                    <i class="material-icons">remove_circle_outline</i>
+                </button>
             `;
             calendars.appendChild(calendar);
-            componentHandler.upgradeDom(); // Upgrade new elements to Material Design Lite components
+            componentHandler.upgradeDom();
         }
+
+        function removeCalendar(button) {
+            let calendar = button.parentNode;
+            calendar.remove();
+        }
+
     </script>
 </body>
 </html>
