@@ -47,3 +47,42 @@ def resize_image(image, desired_size):
 
     # Step 3: Resize to the exact desired dimensions (if necessary)
     return cropped_image.resize((desired_width, desired_height), Image.LANCZOS)
+
+def generate_7_color_image(width, height, image):
+        logger.info("getbuffer")
+        # Create a pallette with the 7 colors supported by the panel
+        pal_image = Image.new("P", (1,1))
+        pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
+
+        # Check if we need to rotate the image
+        imwidth, imheight = image.size
+        if(imwidth == width and imheight == height):
+            image_temp = image
+        elif(imwidth == height and imheight == width):
+            image_temp = image.rotate(90, expand=True)
+        else:
+            logger.warning("Invalid image dimensions: %d x %d, expected %d x %d" % (imwidth, imheight, width, height))
+        logger.info("Image dimensions: %d x %d, expected %d x %d" % (imwidth, imheight, width, height))
+
+
+        # Convert the soruce image to the 7 colors, dithering if needed
+        logger.info("convert")
+        return image_temp.convert("RGB").quantize(palette=pal_image)
+
+
+def get_buffer(width, height, image):
+        image_7color = generate_7_color_image(width, height, image)
+        logger.info("toBuffer")
+        buf_7color = bytearray(image_7color.tobytes('raw'))
+
+        # PIL does not support 4 bit color, so pack the 4 bits of color
+        # into a single byte to transfer to the panel
+        buf = [0x00] * int(width * height / 2)
+        idx = 0
+        logger.info("epd7in3f - forLoop on buffer")
+        for i in range(0, len(buf_7color), 2):
+            buf[idx] = (buf_7color[i] << 4) + buf_7color[i+1]
+            idx += 1
+            
+        logger.info("return buffer")
+        return buf

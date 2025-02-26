@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request
 import os
 
-from utils.cal_utils import generate_image, get_buffer
-from utils.image_utils import change_orientation, resize_image
+from utils.cal_utils import generate_image
+from utils.image_utils import change_orientation, resize_image, get_buffer, generate_7_color_image
 
 app = Flask(__name__)
 
@@ -41,7 +41,8 @@ def getCal():
     image = resize_image(image, resolution)
 
     # Save the image
-    image.save(os.path.join("static", 'calendar.png'))
+    sevenColorImage = generate_7_color_image(resolution[0], resolution[1], image)
+    sevenColorImage.save(os.path.join("static", 'calendar.png'))
 
     buf = get_buffer(resolution[0], resolution[1], image)
 
