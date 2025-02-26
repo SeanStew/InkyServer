@@ -82,7 +82,7 @@ def getCal():
         return f"Error generating or saving 7-color image: {e}", 500
 
     try:
-        buffer = get_buffer(resolution[0], resolution[1], image)
+        buffer = get_buffer(resolution[0], resolution[1], seven_color_image)
     except Exception as e:
         print(f"Error getting buffer: {e}")
         return f"Error getting buffer: {e}", 500

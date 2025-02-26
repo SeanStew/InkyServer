@@ -71,17 +71,16 @@ def generate_7_color_image(width, height, image):
 
 
 def get_buffer(width, height, image):
-        image_7color = generate_7_color_image(width, height, image)
         logger.info("toBuffer")
-        buf_7color = bytearray(image_7color.tobytes('raw'))
+        buff_image = bytearray(image.tobytes('raw'))
 
         # PIL does not support 4 bit color, so pack the 4 bits of color
         # into a single byte to transfer to the panel
         buf = [0x00] * int(width * height / 2)
         idx = 0
-        logger.info("epd7in3f - forLoop on buffer")
-        for i in range(0, len(buf_7color), 2):
-            buf[idx] = (buf_7color[i] << 4) + buf_7color[i+1]
+        logger.info("forLoop on buffer")
+        for i in range(0, len(buff_image), 2):
+            buf[idx] = (buff_image[i] << 4) + buff_image[i+1]
             idx += 1
             
         logger.info("return buffer")
