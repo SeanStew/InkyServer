@@ -151,7 +151,7 @@ def wakeup_interval():
     morning_time = time(8, 0)  # 8 AM
     evening_time = time(20, 0)  # 8 PM
 
-    if True # morning_time <= current_time < evening_time:
+    if True: # morning_time <= current_time < evening_time:
         interval = 3600  # 1 hour in seconds
     else:
         # Calculate seconds until the next 8 AM
