@@ -155,13 +155,8 @@ def convert_image_to_header(image, output_file_path):
 
     # Write to header file
     with open(output_file_path, 'w') as f:
-        f.write("// Image data array (width x height pixels)\n")
-        f.write(f"// Width: {image_width}\n")
-        f.write(f"// Height: {image_height}\n")
-        f.write(f"const unsigned char imageData[] = {{\n")
         for i in range(0, len(data_array), 16):
             line = ', '.join(f"0x{data_array[j]:02X}" for j in range(i, min(i + 16, len(data_array))))
             f.write(f"    {line},\n")
-        f.write("};\n")
 
     return output_file_path
