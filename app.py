@@ -161,4 +161,4 @@ def wakeup_interval():
     return jsonify(interval=interval)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=9999)
+    app.run(debug=True, host="0.0.0.0")
