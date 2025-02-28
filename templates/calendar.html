@@ -28,12 +28,14 @@
         <div>
             <h2>Calendar Image</h2>
             <img id="calendar-image" src="{{ url_for('static', filename=image_filename) }}" alt="Calendar Image" width="{{ image_width }}" height="{{ image_height }}">
+            <p>Width: {{ image_width }}px, Height: {{ image_height }}px</p>
         </div>
         {% endif %}
 
         {% if header_content %}
         <div>
             <h2>Header Content</h2>
+            <p>Total bytes in file: {{ header_byte_count }}</p>
             <div id="header-content-container">
                 {{ header_content }}
             </div>

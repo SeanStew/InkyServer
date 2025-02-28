@@ -60,13 +60,15 @@ def showImage():
             # Read the content of calendar.h
             with open(header_file_path, "r") as f:
                 header_content = f.read()
-
+                header_byte_count = os.path.getsize(header_file_path)
+            
             return render_template(
                 "calendar.html",
                 image_filename=CALENDAR_IMAGE_FILENAME,
                 image_width=image_width,
                 image_height=image_height,
                 header_content=header_content,
+                header_byte_count = header_byte_count
             )
         except Exception as e:
             print(f"Error displaying calendar image/header: {e}")
