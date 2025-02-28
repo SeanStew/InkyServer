@@ -135,20 +135,33 @@ def get_buffer(width, height, image):
         return buf
 
 def convert_image_to_header(image, output_file_path):
-    image = image.convert("RGB")  # Ensure it’s in RGB format
+    """
+    Converts an image to a C header file with color data.
+
+    Args:
+        image: The PIL Image object.
+        output_file_path: The path to save the generated header file.
+    """
+    image = image.convert("RGB")  # Ensure it's in RGB format
+    image_width, image_height = image.size  # Get the actual image dimensions
 
     # Create the data array
     data_array = []
-    for y in range(448):
-        for x in range(600):
+    for y in range(image_height):  # Iterate over the actual image height
+        for x in range(image_width):  # Iterate over the actual image width
             rgb = image.getpixel((x, y))
             color_code = color_palette.get(tuple(rgb), 0xFF)  # Default to white if color is not mapped
             data_array.append(color_code)
 
     # Write to header file
     with open(output_file_path, 'w') as f:
+        f.write("// Image data array (width x height pixels)\n")
+        f.write(f"// Width: {image_width}\n")
+        f.write(f"// Height: {image_height}\n")
+        f.write(f"const unsigned char imageData[] = {{\n")
         for i in range(0, len(data_array), 16):
             line = ', '.join(f"0x{data_array[j]:02X}" for j in range(i, min(i + 16, len(data_array))))
             f.write(f"    {line},\n")
+        f.write("};\n")
 
     return output_file_path
