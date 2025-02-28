@@ -1,9 +1,22 @@
 import requests
 from PIL import Image
 from io import BytesIO
+import numpy as np
 import logging
+import os
 
 logger = logging.getLogger(__name__)
+
+# Define the color palette mapping
+color_palette = {
+    (0, 0, 0): 0x00,        # Black
+    (255, 255, 255): 0xFF,  # White
+    (0, 255, 0): 0x35,      # Green
+    (0, 0, 255): 0x2B,      # Blue
+    (255, 0, 0): 0xE0,      # Red
+    (255, 255, 0): 0xFC,    # Yellow
+    (255, 128, 0): 0xEC,    # Orange
+}
 
 def get_image(image_url):
     response = requests.get(image_url)
@@ -48,6 +61,42 @@ def resize_image(image, desired_size):
     # Step 3: Resize to the exact desired dimensions (if necessary)
     return cropped_image.resize((desired_width, desired_height), Image.LANCZOS)
 
+def closest_palette_color(rgb):
+    """Find the closest color in the palette."""
+    min_dist = float('inf')
+    closest_color = (255, 255, 255)  # Default to white
+    for palette_rgb in color_palette:
+        # Cast to int32 to prevent overflow during calculations
+        dist = sum((int(rgb[i]) - int(palette_rgb[i])) ** 2 for i in range(3))
+        if dist < min_dist:
+            min_dist = dist
+            closest_color = palette_rgb
+    return closest_color
+
+def apply_floyd_steinberg_dithering(image):
+    """Apply Floyd-Steinberg dithering to the image."""
+    pixels = np.array(image, dtype=np.int16)  # Use int16 to allow negative values during error distribution
+    for y in range(image.height):
+        for x in range(image.width):
+            old_pixel = tuple(pixels[y, x][:3])
+            new_pixel = closest_palette_color(old_pixel)
+            pixels[y, x][:3] = new_pixel
+            quant_error = np.array(old_pixel) - np.array(new_pixel)
+            
+            # Distribute the quantization error to neighboring pixels (convert to int16 before adding)
+            if x + 1 < image.width:
+                pixels[y, x + 1][:3] += (quant_error * 7 / 16).astype(np.int16)
+            if x - 1 >= 0 and y + 1 < image.height:
+                pixels[y + 1, x - 1][:3] += (quant_error * 3 / 16).astype(np.int16)
+            if y + 1 < image.height:
+                pixels[y + 1, x][:3] += (quant_error * 5 / 16).astype(np.int16)
+            if x + 1 < image.width and y + 1 < image.height:
+                pixels[y + 1, x + 1][:3] += (quant_error * 1 / 16).astype(np.int16)
+    
+    # Clip pixel values to be within 0-255 range after dithering
+    pixels = np.clip(pixels, 0, 255)
+    return Image.fromarray(pixels.astype(np.uint8))
+
 def generate_7_color_image(width, height, image):
         logger.info("getbuffer")
         # Create a pallette with the 7 colors supported by the panel
@@ -69,7 +118,6 @@ def generate_7_color_image(width, height, image):
         logger.info("convert")
         return image_temp.convert("RGB").quantize(palette=pal_image)
 
-
 def get_buffer(width, height, image):
         logger.info("toBuffer")
         buff_image = bytearray(image.tobytes('raw'))
@@ -85,3 +133,22 @@ def get_buffer(width, height, image):
             
         logger.info("return buffer")
         return buf
+
+def convert_image_to_header(image, output_file_path):
+    image = image.convert("RGB")  # Ensure it’s in RGB format
+
+    # Create the data array
+    data_array = []
+    for y in range(448):
+        for x in range(600):
+            rgb = image.getpixel((x, y))
+            color_code = color_palette.get(tuple(rgb), 0xFF)  # Default to white if color is not mapped
+            data_array.append(color_code)
+
+    # Write to header file
+    with open(output_file_path, 'w') as f:
+        for i in range(0, len(data_array), 16):
+            line = ', '.join(f"0x{data_array[j]:02X}" for j in range(i, min(i + 16, len(data_array))))
+            f.write(f"    {line},\n")
+
+    return output_file_path
