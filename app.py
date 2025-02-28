@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, send_file, jsonify
 import os
 from datetime import datetime, time, timedelta
+from PIL import Image
 
 from utils.cal_utils import generate_image
 from utils.image_utils import change_orientation, resize_image, get_buffer, generate_7_color_image, convert_image_to_header, apply_floyd_steinberg_dithering
@@ -42,55 +43,37 @@ def index():
 
     return render_template("index.html", calendars=calendars, update_frequency=update_frequency)
 
-@app.route("/getCal", methods=["GET"])
-def getCal():
+@app.route("/showImage", methods=["GET"])
+def showImage():
     """
-    Generates the calendar image based on calendar data, resizes it, and
-    prepares the data for the e-ink display.
+    Displays the saved calendar.png and the content of calendar.h.
     """
-    if not calendars:
-        # Handle the case where no calendars are configured
-        return "No calendars configured. Please add calendars in settings.", 400
+    image_path = os.path.join("static", CALENDAR_IMAGE_FILENAME)
+    header_file_path = os.path.join("static", HEADER_FILENAME)
 
-    resolution = DEFAULT_RESOLUTION
-    try:
-        image = generate_image(
-            resolution=resolution,
-            ical_url=calendars[0].get('ical_url'),
-            start_time=8,
-            end_time=22,
-            days_to_show=5,
-            event_card_radius=10,
-            event_text_size=14,
-            title_text_size=18,
-            grid_color="#000000",
-            event_color=calendars[0].get('color'),
-            event_text_color="#ffffff",
-            legend_color="#000000",
-        )
-    except Exception as e:
-        print(f"Error generating calendar image: {e}")
-        return f"Error generating calendar image: {e}", 500
+    if os.path.exists(image_path) and os.path.exists(header_file_path):
+        try:
+            # Load the image to get its dimensions (not strictly needed for display but nice to know)
+            img = Image.open(image_path)
+            image_width, image_height = img.size
 
-    # Resize and adjust orientation
-    image = change_orientation(image, "horizontal")
-    image = resize_image(image, resolution)
+            # Read the content of calendar.h
+            with open(header_file_path, "r") as f:
+                header_content = f.read()
 
-    # Save the image
-    try:
-        seven_color_image = generate_7_color_image(resolution[0], resolution[1], image)
-        seven_color_image.save(os.path.join("static", CALENDAR_IMAGE_FILENAME))
-    except Exception as e:
-        print(f"Error generating or saving 7-color image: {e}")
-        return f"Error generating or saving 7-color image: {e}", 500
-
-    try:
-        buffer = get_buffer(resolution[0], resolution[1], seven_color_image)
-    except Exception as e:
-        print(f"Error getting buffer: {e}")
-        return f"Error getting buffer: {e}", 500
-
-    # Render the template with the image and buffer data
+            return render_template(
+                "calendar.html",
+                image_filename=CALENDAR_IMAGE_FILENAME,
+                image_width=image_width,
+                image_height=image_height,
+                header_content=header_content,
+            )
+        except Exception as e:
+            print(f"Error displaying calendar image/header: {e}")
+            return f"Error displaying calendar image/header: {e}", 500
+    else:
+        print(f"Calendar image or header file not found.")
+        return "Calendar image or header file not found. Please generate the image first.", 404
     return render_template("calendar.html", image=image, buf=buffer)
 
 @app.route("/generateImage", methods=["GET"])

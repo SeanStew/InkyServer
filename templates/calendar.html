@@ -1,16 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Calendar</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Image</title>
     <style>
-        pre {
-            white-space: pre-wrap; /* Allow wrapping */
-            word-wrap: break-word; /* Break long words */
+        #image-container {
+            display: flex;
+            gap: 20px;
+        }
+        #calendar-image {
+            border: 1px solid black;
+        }
+        #header-content-container {
+            flex-grow: 1;
+            border: 1px solid gray;
+            overflow-wrap: break-word; /* Enable word wrapping */
+            white-space: pre-wrap; /* Preserve line breaks and whitespace */
         }
     </style>
 </head>
 <body>
-    <img src="{{ url_for('static', filename='calendar.png') }}" alt="Calendar Image">
-    <pre>{{ buf }}</pre>
+    <h1>Calendar Image and Header Content</h1>
+
+    <div id="image-container">
+        {% if image_filename %}
+        <div>
+            <h2>Calendar Image</h2>
+            <img id="calendar-image" src="{{ url_for('static', filename=image_filename) }}" alt="Calendar Image" width="{{ image_width }}" height="{{ image_height }}">
+        </div>
+        {% endif %}
+
+        {% if header_content %}
+        <div>
+            <h2>Header Content</h2>
+            <div id="header-content-container">
+                {{ header_content }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
 </body>
 </html>
