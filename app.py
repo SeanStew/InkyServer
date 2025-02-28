@@ -93,8 +93,8 @@ def getCal():
     # Render the template with the image and buffer data
     return render_template("calendar.html", image=image, buf=buffer)
 
-@app.route("/getImage", methods=["GET"])
-def getImage():
+@app.route("/generateImage", methods=["GET"])
+def generateImage():
     resolution = DEFAULT_RESOLUTION
     try:
         image = generate_image(
@@ -137,10 +137,26 @@ def getImage():
         return f"Error getting buffer: {e}", 500
 
     try:
-        return send_file(header_file, as_attachment=True)
+        return jsonify(status="done", file=header_file)
     except Exception as e:
         print(f"Error sending file: {e}")
         return f"Error sending file: {e}", 500
+    
+@app.route("/getImage", methods=["GET"])
+def getImage():
+    """
+    Serves the pre-generated calendar.h file.
+    """
+    header_file_path = os.path.join("static", HEADER_FILENAME)
+    if os.path.exists(header_file_path):
+        try:
+            return send_file(header_file_path, as_attachment=True)
+        except Exception as e:
+            print(f"Error sending file: {e}")
+            return f"Error sending file: {e}", 500
+    else:
+        print(f"Header file not found: {header_file_path}")
+        return f"Header file not found: {header_file_path}", 404
 
 @app.route('/nextPullInterval', methods=['GET'])
 def wakeup_interval():
