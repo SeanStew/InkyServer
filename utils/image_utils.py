@@ -135,20 +135,39 @@ def get_buffer(width, height, image):
         return buf
 
 def convert_image_to_header(image, output_file_path):
-    image = image.convert("RGB")  # Ensure it's in RGB format
     image_width, image_height = image.size  # Get the actual image dimensions
 
-    buff_image = bytearray(image.tobytes('raw'))
+    #Ensure image is in P (palette) format
+    if image.mode != 'P':
+        logger.warning("Image not in palette mode. Converting.")
+        pal_image = Image.new("P", (1,1))
+        pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
+        image = image.convert("RGB").quantize(palette=pal_image)
 
-    buf = [0x00] * int(image_width * image_height / 2)
+    buff_image = bytearray(image.tobytes())
+
+    # Calculate the correct buffer size
+    buffer_size = (image_width * image_height) // 2
+    buf = [0x00] * buffer_size
+
+    #Check if buff size is correct
+    if len(buff_image) != (image_width * image_height):
+        logger.warning(f"Unexpected buffer size. expected:{image_width * image_height} got: {len(buff_image)}")
     idx = 0
     logger.info("forLoop on buffer")
     for i in range(0, len(buff_image), 2):
-        buf[idx] = (buff_image[i] << 4) + buff_image[i+1]
-        idx += 1
+        if i + 1 < len(buff_image):  # Check if there's a pair
+            buf[idx] = (buff_image[i] << 4) + buff_image[i+1]
+            idx += 1
+        elif i < len(buff_image): #handle odd numbers
+            buf[idx] = (buff_image[i] << 4)
+            idx+=1
+        
+    if len(buf) != buffer_size:
+        logger.error(f"Unexpected out buffer size, expected {buffer_size} got: {len(buf)}")
 
     # Write to header file
     with open(output_file_path, 'w') as f:
-        f.write(", ".join(buf))  # Join all elements with a comma and a space
+        f.write(", ".join(map(str,buf)))  # Join all elements with a comma and a space
 
     return output_file_path
