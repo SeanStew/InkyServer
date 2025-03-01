@@ -151,14 +151,12 @@ def convert_image_to_header(image, output_file_path):
         for x in range(image_width):  # Iterate over the actual image width
             rgb = image.getpixel((x, y))
             color_code = color_palette.get(tuple(rgb), 0xFF)  # Default to white if color is not mapped
-            data_array.append(color_code)
-            
-    logger.info("data array size" + str(len(data_array)))
+            data_array.append(f"0x{color_code:02X}")
+
+    logger.info("data array size: " + str(len(data_array)))
 
     # Write to header file
     with open(output_file_path, 'w') as f:
-        for i in range(0, len(data_array), 16):
-            line = ', '.join(f"0x{data_array[j]:02X}" for j in range(i, min(i + 16, len(data_array))))
-            f.write(f"    {line},\n")
+        f.write(", ".join(data_array))  # Join all elements with a comma and a space
 
     return output_file_path
