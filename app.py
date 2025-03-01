@@ -4,7 +4,7 @@ from datetime import datetime, time, timedelta
 from PIL import Image
 
 from utils.cal_utils import generate_image
-from utils.image_utils import change_orientation, resize_image, get_buffer, generate_7_color_image, convert_image_to_header, apply_floyd_steinberg_dithering
+from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering
 
 app = Flask(__name__)
 

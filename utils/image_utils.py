@@ -135,38 +135,20 @@ def get_buffer(width, height, image):
         return buf
 
 def convert_image_to_header(image, output_file_path):
-    """
-    Converts an image to a C header file with color data.
-
-    Args:
-        image: The PIL Image object.
-        output_file_path: The path to save the generated header file.
-    """
     image = image.convert("RGB")  # Ensure it's in RGB format
     image_width, image_height = image.size  # Get the actual image dimensions
 
-    packed_data = []
-    for y in range(image_height):
-        for x in range(0, image_width, 2):  # Iterate over pixels in pairs
-            # Get the first pixel's color
-            rgb1 = image.getpixel((x, y))
-            # color_code1 = color_palette.get(tuple(rgb1), 0xF)  # Default to white if color is not mapped
+    buff_image = bytearray(image.tobytes('raw'))
 
-            # Get the second pixel's color (if it exists)
-            if x + 1 < image_width:
-                rgb2 = image.getpixel((x + 1, y))
-                # color_code2 = color_palette.get(tuple(rgb2), 0xF)  # Default to white
-           # else:
-                # color_code2 = 0x0  # Default to black if it is the end of a line
-
-            # Pack the two 4-bit color codes into a single byte
-            packed_byte = (rgb1 << 4) | rgb2
-            packed_data.append(f"0x{packed_byte:02X}")
-
-    logger.info("packed data size: " + str(len(packed_data)))
+    buf = [0x00] * int(image_width * image_height / 2)
+    idx = 0
+    logger.info("forLoop on buffer")
+    for i in range(0, len(buff_image), 2):
+        buf[idx] = (buff_image[i] << 4) + buff_image[i+1]
+        idx += 1
 
     # Write to header file
     with open(output_file_path, 'w') as f:
-        f.write(", ".join(packed_data))  # Join all elements with a comma and a space
+        f.write(", ".join(buf))  # Join all elements with a comma and a space
 
     return output_file_path
