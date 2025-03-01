@@ -97,45 +97,15 @@ def apply_floyd_steinberg_dithering(image):
     pixels = np.clip(pixels, 0, 255)
     return Image.fromarray(pixels.astype(np.uint8))
 
-def generate_7_color_image(width, height, image):
-        logger.info("getbuffer")
-        # Create a pallette with the 7 colors supported by the panel
-        pal_image = Image.new("P", (1,1))
-        pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
-
-        # Check if we need to rotate the image
-        imwidth, imheight = image.size
-        if(imwidth == width and imheight == height):
-            image_temp = image
-        elif(imwidth == height and imheight == width):
-            image_temp = image.rotate(90, expand=True)
-        else:
-            logger.warning("Invalid image dimensions: %d x %d, expected %d x %d" % (imwidth, imheight, width, height))
-        logger.info("Image dimensions: %d x %d, expected %d x %d" % (imwidth, imheight, width, height))
-
-
-        # Convert the soruce image to the 7 colors, dithering if needed
-        logger.info("convert")
-        return image_temp.convert("RGB").quantize(palette=pal_image)
-
-def get_buffer(width, height, image):
-        logger.info("toBuffer")
-        buff_image = bytearray(image.tobytes('raw'))
-
-        # PIL does not support 4 bit color, so pack the 4 bits of color
-        # into a single byte to transfer to the panel
-        buf = [0x00] * int(width * height / 2)
-        idx = 0
-        logger.info("forLoop on buffer")
-        for i in range(0, len(buff_image), 2):
-            buf[idx] = (buff_image[i] << 4) + buff_image[i+1]
-            idx += 1
-            
-        logger.info("return buffer")
-        return buf
-
 def convert_image_to_header(image, output_file_path):
     image_width, image_height = image.size  # Get the actual image dimensions
+
+    #Ensure image is in P (palette) format
+    if image.mode != 'P':
+        logger.warning("Image not in palette mode. Converting.")
+        pal_image = Image.new("P", (1,1))
+        pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
+        image = image.convert("RGB").quantize(palette=pal_image)
 
     buff_image = bytearray(image.tobytes())
 

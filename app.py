@@ -19,7 +19,7 @@ calendars = [
     {"ical_url": "https://example.com/calendar1.ics", "calendar_name": "Example Name", "color": "#00FF00"},
 ]
 update_frequency = DEFAULT_UPDATE_FREQUENCY
-should_dither = False
+should_dither = True
 
 @app.route("/", methods=["GET", "POST"])
 def index():
