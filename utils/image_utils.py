@@ -166,8 +166,11 @@ def convert_image_to_header(image, output_file_path):
     if len(buf) != buffer_size:
         logger.error(f"Unexpected out buffer size, expected {buffer_size} got: {len(buf)}")
 
+    # Convert to hex strings
+    hex_strings = [f"0x{byte:02X}" for byte in buf]
+
     # Write to header file
     with open(output_file_path, 'w') as f:
-        f.write(", ".join(map(str,buf)))  # Join all elements with a comma and a space
+        f.write(", ".join(hex_strings))
 
     return output_file_path
