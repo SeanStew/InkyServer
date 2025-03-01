@@ -137,13 +137,6 @@ def get_buffer(width, height, image):
 def convert_image_to_header(image, output_file_path):
     image_width, image_height = image.size  # Get the actual image dimensions
 
-    #Ensure image is in P (palette) format
-    if image.mode != 'P':
-        logger.warning("Image not in palette mode. Converting.")
-        pal_image = Image.new("P", (1,1))
-        pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
-        image = image.convert("RGB").quantize(palette=pal_image)
-
     buff_image = bytearray(image.tobytes())
 
     # Calculate the correct buffer size
