@@ -152,6 +152,8 @@ def convert_image_to_header(image, output_file_path):
             rgb = image.getpixel((x, y))
             color_code = color_palette.get(tuple(rgb), 0xFF)  # Default to white if color is not mapped
             data_array.append(color_code)
+            
+    logger.info("data array size" + str(len(data_array)))
 
     # Write to header file
     with open(output_file_path, 'w') as f:
