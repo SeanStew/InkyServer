@@ -120,7 +120,7 @@ def generate_image(resolution, calendars, start_time, end_time,
                 end_dt = event.end.datetime.astimezone(vancouver_timezone)    # Get end time as datetime object
 
                 # Calculate event position and duration
-                day_offset = (start_dt.weekday() - today.weekday()) % days_to_show  # Adjust for week wrapping
+                day_offset = (start_dt.date() - today.date()).days
                 x_pos = grid_start_x + day_offset * cell_width
 
                 # Calculate y_pos with minute precision
