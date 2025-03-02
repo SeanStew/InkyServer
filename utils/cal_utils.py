@@ -163,7 +163,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
                 event_color = event.color if hasattr(event,"color") else "#ff0000" #Fallback to red if no color
 
                 # Draw the event rectangle
-                if start_time <= start_dt.hour <= end_time:
+                if start_time <= start_dt.hour <= end_time and hasattr(event,"name"):
                     draw.rounded_rectangle(
                         [
                             (x_pos, y_pos),

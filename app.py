@@ -49,6 +49,7 @@ def schedule_generate_image_job(frequency_minutes):
     schedule.clear()
     print(f"Scheduling generateImage to run once in {frequency_minutes} minutes")
     schedule.every(frequency_minutes).minutes.do(scheduled_generate_image)
+    run_scheduler()
 
 
 def run_scheduler():
