@@ -31,6 +31,7 @@ calendars = [
 ]
 update_frequency = DEFAULT_UPDATE_FREQUENCY
 should_dither = False
+scheduler_initialized = False
 generate_image_lock = threading.Lock()
 
 def scheduled_generate_image():
@@ -46,6 +47,10 @@ def scheduled_generate_image():
 
 def schedule_generate_image_job(frequency_minutes):
     """Schedules the generate_image job to run at the specified frequency."""
+    global scheduler_initialized
+    if scheduler_initialized:
+        return
+    scheduler_initialized = True
     schedule.clear()
     print(f"Scheduling generateImage every {frequency_minutes} minutes")
     schedule.every(frequency_minutes).minutes.do(scheduled_generate_image)
@@ -194,6 +199,7 @@ def wakeup_interval():
         next_morning = datetime.combine(now.date() + timedelta(days=1), morning_time)
         interval = int((next_morning - now).total_seconds())
 
+    scheduler_initialized = False
     schedule_generate_image_job(update_frequency - 10)
     return jsonify(interval=interval)
 
