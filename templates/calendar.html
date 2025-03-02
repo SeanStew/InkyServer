@@ -2,45 +2,106 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar Image</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Calendar Settings</title>
     <style>
-        #image-container {
-            display: flex;
-            gap: 20px;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-        #calendar-image {
-            border: 1px solid black;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-        #header-content-container {
-            flex-grow: 1;
-            border: 1px solid gray;
-            overflow-wrap: break-word; /* Enable word wrapping */
-            white-space: pre-wrap; /* Preserve line breaks and whitespace */
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .color-option {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 1px solid #000;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .color-radio{
+          display: none;
+        }
+
+        .color-option.selected {
+           border-width: 3px;
+           border-color: blue;
         }
     </style>
 </head>
 <body>
-    <h1>Calendar Image and Header Content</h1>
+    <h1>Calendar Settings</h1>
+    <form method="POST">
+        <table>
+            <thead>
+                <tr>
+                    <th>iCal URL</th>
+                    <th>Calendar Name</th>
+                    <th>Color</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for calendar in calendars %}
+                <tr>
+                    <td>
+                        <input type="url" name="ical_url" value="{{ calendar.ical_url }}" required>
+                    </td>
+                    <td>
+                        <input type="text" name="calendar_name" value="{{ calendar.calendar_name }}" required>
+                    </td>
+                    <td>
+                        <div class="color-picker-container">
+                            <!-- Hidden input to store the selected color -->
+                            <input type="hidden" name="color" value="{{ calendar.color }}" class="color-input">
+                            {% for color_code, color_name in allowed_colors.items() %}
+                            
+                            <input type="radio" id="{{ calendar.calendar_name }}{{ color_code }}" name="{{ calendar.calendar_name }}color_radio" value="{{ color_code }}" class="color-radio"  {% if calendar.color == color_code %} checked {% endif %}>
+                            <label for="{{ calendar.calendar_name }}{{ color_code }}" class="color-option" style="background-color: {{ color_code }};"></label>
+                            
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <label for="update_frequency">Update Frequency (minutes):</label>
+        <input type="number" name="update_frequency" value="{{ update_frequency }}" required>
+        <button type="submit">Save Settings</button>
+    </form>
 
-    <div id="image-container">
-        {% if image_filename %}
-        <div>
-            <h2>Calendar Image</h2>
-            <img id="calendar-image" src="{{ url_for('static', filename=image_filename) }}" alt="Calendar Image" width="{{ image_width }}" height="{{ image_height }}">
-            <p>Width: {{ image_width }}px, Height: {{ image_height }}px</p>
-        </div>
-        {% endif %}
+    <script>
+        $(document).ready(function() {
+            // Add click event listener to color options
+            $('.color-option').click(function() {
+                // Remove selected class from all options in the same container
+                $(this).closest('.color-picker-container').find('.color-option').removeClass('selected');
+                // Add selected class to the clicked option
+                $(this).addClass('selected');
 
-        {% if header_content %}
-        <div>
-            <h2>Header Content</h2>
-            <p>Total bytes in file: {{ header_byte_count }}</p>
-            <div id="header-content-container">
-                {{ header_content }}
-            </div>
-        </div>
-        {% endif %}
-    </div>
+                // Get the color value from the clicked option
+                var selectedColor = $(this).prev('.color-radio').val();
+                // Update the hidden input field with the selected color
+                $(this).closest('.color-picker-container').find('.color-input').val(selectedColor);
+
+                $(this).prev('.color-radio').prop('checked', true);
+            });
+        });
+    </script>
 </body>
 </html>

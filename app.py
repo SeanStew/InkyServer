@@ -14,6 +14,15 @@ CALENDAR_IMAGE_FILENAME = "calendar.png"
 HEADER_FILENAME = "calendar.h"
 DEFAULT_RESOLUTION = (800, 480)
 
+ALLOWED_COLORS = {
+    "#000000": "Black",
+    "#00FF00": "Green",
+    "#0000FF": "Blue",
+    "#FF0000": "Red",
+    "#FFFF00": "Yellow",
+    "#FF8000": "Orange",
+}
+
 # Initial calendar data (can be moved to a database later)
 calendars = [
     {"ical_url": "https://example.com/calendar1.ics", "calendar_name": "Example Name", "color": "#00FF00"},
@@ -37,11 +46,11 @@ def index():
             }
             calendars.append(calendar)
         update_frequency = int(request.form["update_frequency"])
-        # TODO: Save to database
+
         print(f"Calendars: {calendars}")
         print(f"Update frequency: {update_frequency}")
 
-    return render_template("index.html", calendars=calendars, update_frequency=update_frequency)
+    return render_template("index.html", calendars=calendars, update_frequency=update_frequency, allowed_colors=ALLOWED_COLORS)
 
 @app.route("/showImage", methods=["GET"])
 def showImage():
