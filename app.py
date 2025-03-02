@@ -57,7 +57,6 @@ def run_scheduler():
     with app.app_context():
         while True:
             schedule.run_pending()
-            time.sleep(1)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
