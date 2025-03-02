@@ -84,7 +84,7 @@ def generateImage():
     try:
         image = generate_image(
             resolution=resolution,
-            ical_url=calendars[0].get('ical_url'),
+            calendars=calendars,
             start_time=8,
             end_time=22,
             days_to_show=5,
