@@ -138,7 +138,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
 
                 for event in events_to_display:
                     event.color = cal_data['color']
-                all_events_this_week.extend(events_this_week)
+                all_events_this_week.extend(events_to_display)
             except requests.exceptions.RequestException as e:
                 logger.error(f"Error fetching calendar {cal_data['calendar_name']}: {e}")
 
