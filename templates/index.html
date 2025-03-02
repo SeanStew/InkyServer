@@ -13,11 +13,14 @@
         body {
             font-family: Roboto, sans-serif;
             margin: 20px;
-            background-color: #f5f5f5; /* Light gray background */
+            background-color: #303030; /* Dark gray background */
+            color: #eeeeee; /* Light text color */
         }
 
         .mdc-card {
             margin-bottom: 20px;
+            background-color: #424242; /* Dark card background */
+            color: #eeeeee;
         }
 
         .mdc-card__content {
@@ -27,9 +30,27 @@
         .mdc-text-field {
             width: 100%;
         }
+        .mdc-text-field--filled {
+          background-color: #555; /* Darker input background */
+          --mdc-text-field-ink-color: #eeeeee;
+        }
+
+        .mdc-text-field--filled .mdc-text-field__input,
+        .mdc-text-field--filled .mdc-floating-label {
+          color: #eeeeee;
+        }
+
+        .mdc-text-field--filled .mdc-line-ripple::before {
+            border-bottom-color: #eeeeee;
+        }
+        .mdc-text-field__input {
+            color: #eeeeee;
+        }
 
         .mdc-button {
             margin-top: 20px;
+            --mdc-theme-primary: #03dac6;
+            --mdc-theme-on-primary: #000;
         }
 
         .color-option {
@@ -49,7 +70,7 @@
 
         .color-option.selected {
             border-width: 3px;
-            border-color: blue;
+            border-color: #03dac6;
         }
 
         .color-picker-container {
@@ -61,10 +82,25 @@
 
         .mdc-data-table {
           width: 100%;
+          background-color: #424242;
         }
 
         .mdc-data-table__cell{
           padding: 10px;
+          color: #eeeeee;
+        }
+        .mdc-data-table__header-cell {
+          color: #eeeeee;
+        }
+        .mdc-data-table__row:not(:last-of-type) {
+            border-bottom: 1px solid #555;
+        }
+
+        .mdc-icon-button {
+            --mdc-icon-button-icon-color: #eeeeee;
+        }
+        .remove-button {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -86,11 +122,12 @@
                     <th class="mdc-data-table__header-cell" role="columnheader" scope="col">iCal URL</th>
                     <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Calendar Name</th>
                     <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Color</th>
+                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col"></th>
                   </tr>
                 </thead>
-                <tbody class="mdc-data-table__content">
+                <tbody class="mdc-data-table__content" id="calendar-table-body">
                   {% for calendar in calendars %}
-                  <tr class="mdc-data-table__row">
+                  <tr class="mdc-data-table__row" {% if loop.index0 == 0 %} id="first-row" {% endif %}>
                     <td class="mdc-data-table__cell">
                       <div class="mdc-text-field mdc-text-field--filled">
                         <span class="mdc-text-field__ripple"></span>
@@ -115,12 +152,26 @@
                         {% endfor %}
                       </div>
                     </td>
+                    <td class="mdc-data-table__cell">
+                      {% if loop.index0 != 0 %}
+                        <i class="material-icons remove-button" onclick="removeCalendarRow(this)">remove_circle</i>
+                       {% endif %}
+                    </td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
             </div>
           </div>
+          
+          <button type="button" class="mdc-button mdc-button--raised" id="add-calendar-row">
+            <span class="mdc-button__ripple"></span>
+            <i class="material-icons">add</i>
+            <span class="mdc-button__label">Add Calendar</span>
+          </button>
+          <br />
+          <br />
+
           <div class="mdc-text-field mdc-text-field--filled">
             <span class="mdc-text-field__ripple"></span>
             <input class="mdc-text-field__input" type="number" name="update_frequency" id="update_frequency" value="{{ update_frequency }}" required>
@@ -172,7 +223,77 @@
             for (const elem of button) {
                 mdc.ripple.MDCRipple.attachTo(elem);
             }
+
+            //Initialize the add calendar row button
+            $('#add-calendar-row').click(function() {
+                addCalendarRow();
+            });
         });
+
+        let calendarCount = {{ calendars|length }};
+        const allowedColors = {{ allowed_colors|tojson }};
+
+        function addCalendarRow() {
+            calendarCount++;
+            const newRow = `
+                <tr class="mdc-data-table__row">
+                    <td class="mdc-data-table__cell">
+                        <div class="mdc-text-field mdc-text-field--filled">
+                            <span class="mdc-text-field__ripple"></span>
+                            <input class="mdc-text-field__input" type="url" name="ical_url" required>
+                            <span class="mdc-line-ripple"></span>
+                        </div>
+                    </td>
+                    <td class="mdc-data-table__cell">
+                        <div class="mdc-text-field mdc-text-field--filled">
+                            <span class="mdc-text-field__ripple"></span>
+                            <input class="mdc-text-field__input" type="text" name="calendar_name" required>
+                            <span class="mdc-line-ripple"></span>
+                        </div>
+                    </td>
+                    <td class="mdc-data-table__cell">
+                      <div class="color-picker-container">
+                            <!-- Hidden input to store the selected color -->
+                            <input type="hidden" name="color" value="#000000" class="color-input">
+                            ${Object.entries(allowedColors).map(([color_code, color_name]) => `
+                                <input type="radio" id="newCal${calendarCount}${color_code}" name="newCal${calendarCount}color_radio" value="${color_code}" class="color-radio" ${color_code === "#000000" ? "checked" : ""}>
+                                <label for="newCal${calendarCount}${color_code}" class="color-option" style="background-color: ${color_code};" title="${color_name}"></label>
+                            `).join('')}
+                      </div>
+                    </td>
+                     <td class="mdc-data-table__cell">
+                      <i class="material-icons remove-button" onclick="removeCalendarRow(this)">remove_circle</i>
+                     </td>
+                </tr>
+            `;
+            $('#calendar-table-body').append(newRow);
+
+            //Reinit listeners
+            $('.color-option').click(function () {
+                // Remove selected class from all options in the same container
+                $(this).closest('.color-picker-container').find('.color-option').removeClass('selected');
+                // Add selected class to the clicked option
+                $(this).addClass('selected');
+
+                // Get the color value from the clicked option
+                var selectedColor = $(this).prev('.color-radio').val();
+                // Update the hidden input field with the selected color
+                $(this).closest('.color-picker-container').find('.color-input').val(selectedColor);
+
+                $(this).prev('.color-radio').prop('checked', true);
+            });
+
+             // Initialize all text fields.
+            const textField = document.querySelectorAll('.mdc-text-field');
+            for (const elem of textField) {
+                mdc.textField.MDCTextField.attachTo(elem);
+            }
+        }
+
+        function removeCalendarRow(button) {
+            const row = $(button).closest('.mdc-data-table__row');
+            row.remove();
+        }
     </script>
 </body>
 </html>
