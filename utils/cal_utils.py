@@ -26,7 +26,7 @@ def wrap_text(text, font, max_width):
 
 def generate_image(resolution, calendars, start_time, end_time, 
                    days_to_show, event_card_radius, event_text_size, title_text_size, 
-                   grid_color, event_color, event_text_color, legend_color):
+                   grid_color, event_text_color, legend_color):
         background_color = "white"
 
         #Handle empty calendar list
@@ -37,6 +37,7 @@ def generate_image(resolution, calendars, start_time, end_time,
             font = ImageFont.load_default()
             draw.text((10, 10), "No iCal URLs provided in settings.", font=font, fill=0)
             return img
+        
         
         # Get today's date in the Vancouver timezone
         vancouver_timezone = pytz.timezone("America/Vancouver")
@@ -62,6 +63,7 @@ def generate_image(resolution, calendars, start_time, end_time,
             x_pos = grid_start_x + i * cell_width
             if (i > 0):
                 draw.line([(x_pos, grid_start_y), (x_pos, grid_start_y + grid_height)], fill=grid_color, width=1)
+
         # Horizontal lines
         for i in range(end_time - start_time + 1):
             if (i > 0):
@@ -74,7 +76,7 @@ def generate_image(resolution, calendars, start_time, end_time,
             day_str = day.strftime("%a %d")  # Format: "Mon 11"
             x_pos = grid_start_x + i * cell_width + cell_width / 2 - titleFont.getlength(day_str) / 2
             draw.text((x_pos, grid_start_y - 20), day_str, font=titleFont, fill=legend_color)
-            
+
         # --- Time Labels ---
         for i in range((end_time - start_time + 1)): # hours to display
             hour = start_time + i 
@@ -85,9 +87,10 @@ def generate_image(resolution, calendars, start_time, end_time,
                  hour_str = "12pm"
             else:
                 hour_str = f"{hour - 12}pm"
+
             y_pos = grid_start_y + i * cell_height  # Align with horizontal line
             draw.text((grid_start_x - 35, y_pos), hour_str, font=titleFont, fill=legend_color)
-        
+
         # Filter events for the next days
         end_of_week = today + datetime.timedelta(days=days_to_show - 1)
 
@@ -145,4 +148,5 @@ def generate_image(resolution, calendars, start_time, end_time,
                     draw.multiline_text((x_pos + 5, y_pos + 5), wrapped_text, font=textFont, fill=event_text_color)
 
         return img
+    
 

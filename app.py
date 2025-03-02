@@ -92,7 +92,6 @@ def generateImage():
             event_text_size=14,
             title_text_size=18,
             grid_color="#000000",
-            event_color=calendars[0].get('color'),
             event_text_color="#ffffff",
             legend_color="#000000",
         )
