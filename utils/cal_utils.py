@@ -24,7 +24,7 @@ def wrap_text(text, font, max_width):
         lines.append(current_line)  # Append the last line
         return '\n'.join(lines)
 
-def generate_image(resolution, calendars, start_time, end_time, 
+def generate_calendar_image(resolution, calendars, start_time, end_time, 
                    days_to_show, event_card_radius, event_text_size, title_text_size, 
                    grid_color, event_text_color, legend_color):
         background_color = "white"
