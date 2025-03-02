@@ -1,86 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Calendar Settings</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .color-option {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 1px solid #000;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .color-radio{
+          display: none;
+        }
+
+        .color-option.selected {
+           border-width: 3px;
+           border-color: blue;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Calendar Settings</h2>
-        <form method="POST">
-            <div id="calendars">
+    <h1>Calendar Settings</h1>
+    <form method="POST">
+        <table>
+            <thead>
+                <tr>
+                    <th>iCal URL</th>
+                    <th>Calendar Name</th>
+                    <th>Color</th>
+                </tr>
+            </thead>
+            <tbody>
                 {% for calendar in calendars %}
-                <div class="calendar">
-                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <input class="mdl-textfield__input" type="text" id="ical_url" name="ical_url" value="{{ calendar.ical_url }}" required>
-                        <label class="mdl-textfield__label" for="ical_url">iCal URL</label>
-                    </div>
-                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <input class="mdl-textfield__input" type="text" id="calendar_name" name="calendar_name" value="{{ calendar.calendar_name }}" required>
-                        <label class="mdl-textfield__label" for="calendar_name">Calendar Name</label>
-                    </div>
-                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <input class="mdl-textfield__input" type="color" id="color" name="color" value="{{ calendar.color }}" required>
-                        <label class="mdl-textfield__label" for="color">Color</label>
-                    </div>
-                    {% if loop.index > 1 %}
-                    <button type="button" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="removeCalendar(this)">
-                        <i class="material-icons">remove_circle_outline</i>
-                    </button>
-                    {% endif %}
-                </div>
+                <tr>
+                    <td>
+                        <input type="url" name="ical_url" value="{{ calendar.ical_url }}" required>
+                    </td>
+                    <td>
+                        <input type="text" name="calendar_name" value="{{ calendar.calendar_name }}" required>
+                    </td>
+                    <td>
+                        <div class="color-picker-container">
+                            <!-- Hidden input to store the selected color -->
+                            <input type="hidden" name="color" value="{{ calendar.color }}" class="color-input">
+                            {% for color_code, color_name in allowed_colors.items() %}
+                            
+                            <input type="radio" id="{{ calendar.calendar_name }}{{ color_code }}" name="{{ calendar.calendar_name }}color_radio" value="{{ color_code }}" class="color-radio"  {% if calendar.color == color_code %} checked {% endif %}>
+                            <label for="{{ calendar.calendar_name }}{{ color_code }}" class="color-option" style="background-color: {{ color_code }};"></label>
+                            
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
                 {% endfor %}
-            </div>
-            <button type="button" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored add-calendar-button" onclick="addCalendar()">
-                <i class="material-icons">add</i>
-            </button>
+            </tbody>
+        </table>
+        <label for="update_frequency">Update Frequency (minutes):</label>
+        <input type="number" name="update_frequency" value="{{ update_frequency }}" required>
+        <button type="submit">Save Settings</button>
+    </form>
 
-            <div class="action-row">
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 48%;">
-                    <input class="mdl-textfield__input" type="number" id="update_frequency" name="update_frequency" value="{{ update_frequency }}" required>
-                    <label class="mdl-textfield__label" for="update_frequency">Update Frequency (minutes)</label>
-                </div>
-                <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Save</button>
-            </div>
-        </form>
-    </div>
     <script>
-        function addCalendar() {
-            let calendars = document.getElementById("calendars");
-            let calendar = document.createElement("div");
-            calendar.classList.add("calendar");
-            calendar.innerHTML = `
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="text" id="ical_url" name="ical_url" required>
-                    <label class="mdl-textfield__label" for="ical_url">iCal URL</label>
-                </div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="text" id="calendar_name" name="calendar_name" required>
-                    <label class="mdl-textfield__label" for="calendar_name">Calendar Name</label>
-                </div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="color" id="color" name="color" value="#00FF00" required>
-                    <label class="mdl-textfield__label" for="color">Color</label>
-                </div>
-                <button type="button" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" onclick="removeCalendar(this)">
-                    <i class="material-icons">remove_circle_outline</i>
-                </button>
-            `;
-            calendars.appendChild(calendar);
-            componentHandler.upgradeDom();
-        }
+        $(document).ready(function() {
+            // Add click event listener to color options
+            $('.color-option').click(function() {
+                // Remove selected class from all options in the same container
+                $(this).closest('.color-picker-container').find('.color-option').removeClass('selected');
+                // Add selected class to the clicked option
+                $(this).addClass('selected');
 
-        function removeCalendar(button) {
-            let calendar = button.parentNode;
-            let calendars = document.getElementById("calendars");
-            if (calendars.children.length > 1) {
-                calendar.remove();
-            }
-        }
+                // Get the color value from the clicked option
+                var selectedColor = $(this).prev('.color-radio').val();
+                // Update the hidden input field with the selected color
+                $(this).closest('.color-picker-container').find('.color-input').val(selectedColor);
 
+                $(this).prev('.color-radio').prop('checked', true);
+            });
+        });
     </script>
 </body>
 </html>
