@@ -25,7 +25,7 @@ ALLOWED_COLORS = {
 
 # Initial calendar data (can be moved to a database later)
 calendars = [
-    {"ical_url": "https://example.com/calendar1.ics", "calendar_name": "Example Name", "color": "#00FF00"},
+    {"ical_url": "https://calendar.google.com/calendar/ical/lbf3a8tonfgglvmckjpfs136io%40group.calendar.google.com/private-9d7484dfa0783eac0a7857d93fc90470/basic.ics", "calendar_name": "Example Name", "color": "#00FF00"},
 ]
 update_frequency = DEFAULT_UPDATE_FREQUENCY
 should_dither = False
