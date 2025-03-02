@@ -3,7 +3,6 @@ import os
 from datetime import datetime, time, timedelta
 from PIL import Image
 import threading
-import time
 import schedule
 
 from utils.cal_utils import generate_calendar_image

@@ -6,3 +6,4 @@ pytz
 numpy
 ics
 datetime
+schedule
