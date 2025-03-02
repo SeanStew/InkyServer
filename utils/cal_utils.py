@@ -147,36 +147,40 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
             draw.text((grid_start_x, grid_start_y), 'No upcoming events found.', font=titleFont, fill=0)
         else:
             for event in sorted(all_events_this_week, key=lambda e: e.begin.datetime):
-                start_dt = event.begin.datetime.astimezone(vancouver_timezone)  # Get start time as datetime object
-                end_dt = event.end.datetime.astimezone(vancouver_timezone)    # Get end time as datetime object
-
-                # Calculate event position and duration
-                day_offset = (start_dt.date() - today.date()).days
-                x_pos = grid_start_x + day_offset * cell_width
-
-                # Calculate y_pos with minute precision
-                y_pos = grid_start_y + (start_dt.hour - start_time) * cell_height + (start_dt.minute / 60) * cell_height
-
-                event_duration_hours = (end_dt - start_dt).total_seconds() / 3600
-                event_height = event_duration_hours * cell_height
-                
-                event_color = event.color if hasattr(event,"color") else "#ff0000" #Fallback to red if no color
-
-                # Draw the event rectangle
-                if start_time <= start_dt.hour <= end_time and hasattr(event,"name"):
-                    draw.rounded_rectangle(
-                        [
-                            (x_pos, y_pos),
-                            (x_pos + cell_width, y_pos + event_height)
-                        ],
-                        event_card_radius,
-                        outline=0,
-                        fill=event_color
-                    )
-
-                    # Draw event summary with wrapping
-                    wrapped_text = wrap_text(event.name, textFont, cell_width - 10)
-                    draw.multiline_text((x_pos + 5, y_pos + 5), wrapped_text, font=textFont, fill=event_text_color)
+                try:
+                    start_dt = event.begin.datetime.astimezone(vancouver_timezone)  # Get start time as datetime object
+                    end_dt = event.end.datetime.astimezone(vancouver_timezone)    # Get end time as datetime object
+ 
+                    # Calculate event position and duration
+                    day_offset = (start_dt.date() - today.date()).days
+                    x_pos = grid_start_x + day_offset * cell_width
+ 
+                    # Calculate y_pos with minute precision
+                    y_pos = grid_start_y + (start_dt.hour - start_time) * cell_height + (start_dt.minute / 60) * cell_height
+ 
+                    event_duration_hours = (end_dt - start_dt).total_seconds() / 3600
+                    event_height = event_duration_hours * cell_height
+                    
+                    event_color = event.color if hasattr(event,"color") else "#ff0000" #Fallback to red if no color
+ 
+                    # Draw the event rectangle
+                    #Only draw event if in valid time frame.
+                    if start_time <= start_dt.hour <= end_time and hasattr(event,"name"):
+                        draw.rounded_rectangle(
+                            [
+                                (x_pos, y_pos),
+                                (x_pos + cell_width, y_pos + event_height)
+                            ],
+                            event_card_radius,
+                            outline=0,
+                            fill=event_color
+                        )
+ 
+                        # Draw event summary with wrapping
+                        wrapped_text = wrap_text(event.name, textFont, cell_width - 10)
+                        draw.multiline_text((x_pos + 5, y_pos + 5), wrapped_text, font=textFont, fill=event_text_color)
+                except Exception as ex:
+                    logger.error(f"Unexpected error drawing event: {ex}")
 
         return img
     
