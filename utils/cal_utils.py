@@ -24,7 +24,29 @@ def wrap_text(text, font, max_width):
         lines.append(current_line)  # Append the last line
         return '\n'.join(lines)
 
-def generate_image(resolution, calendars, start_time, end_time, 
+def create_fade_mask(size, fade_length):
+    """Creates a mask with a fade effect at the edges."""
+    mask = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(mask)
+    width, height = size
+
+    # Horizontal gradient
+    for x in range(fade_length):
+        alpha = int(255 * (x / fade_length))
+        draw.line([(x, 0), (x, height)], fill=alpha, width=1)
+        draw.line([(width - x - 1, 0), (width - x - 1, height)], fill=alpha, width=1)
+
+    # Vertical gradient
+    for y in range(fade_length):
+        alpha = int(255 * (y / fade_length))
+        draw.line([(0, y), (width, y)], fill=alpha, width=1)
+        draw.line([(0, height-y-1), (width, height-y-1)], fill=alpha, width=1)
+    
+    #Center fully visible
+    draw.rectangle( [fade_length, fade_length, width - fade_length, height - fade_length], fill=255)
+    return mask
+
+def generate_calendar_image(resolution, calendars, start_time, end_time, 
                    days_to_show, event_card_radius, event_text_size, title_text_size, 
                    grid_color, event_text_color, legend_color):
         background_color = "white"
@@ -58,17 +80,27 @@ def generate_image(resolution, calendars, start_time, end_time,
         cell_height = grid_height / (end_time - start_time + 1)  # Diff of start & end time
 
         # --- Draw Grid Lines ---
+        
+        # Create a separate layer for grid lines with transparency
+        grid_lines_layer = Image.new('RGBA', (grid_width, grid_height), (0, 0, 0, 0))
+        grid_draw = ImageDraw.Draw(grid_lines_layer)
+        
         # Vertical lines
         for i in range(days_to_show):
-            x_pos = grid_start_x + i * cell_width
+            x_pos = i * cell_width
             if (i > 0):
-                draw.line([(x_pos, grid_start_y), (x_pos, grid_start_y + grid_height)], fill=grid_color, width=1)
+                 grid_draw.line([(x_pos, 0), (x_pos, grid_height)], fill=grid_color, width=1)
 
         # Horizontal lines
         for i in range(end_time - start_time + 1):
             if (i > 0):
-                y_pos = grid_start_y + i * cell_height
-                draw.line([(grid_start_x, y_pos), (grid_start_x + grid_width, y_pos)], fill=grid_color, width=1)
+                y_pos = i * cell_height
+                grid_draw.line([(0, y_pos), (grid_width, y_pos)], fill=grid_color, width=1)
+
+        # Apply fade effect to grid lines layer
+        fade_length = 10  # Adjust this value to control the length of the fade
+        grid_mask = create_fade_mask((grid_width, grid_height), fade_length)
+        img.paste(grid_lines_layer, (grid_start_x, grid_start_y), grid_mask)
 
         # --- Date Labels ---
         for i in range(days_to_show):

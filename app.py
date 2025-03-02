@@ -2,8 +2,11 @@ from flask import Flask, render_template, request, send_file, jsonify
 import os
 from datetime import datetime, time, timedelta
 from PIL import Image
+import threading
+import time
+import schedule
 
-from utils.cal_utils import generate_image
+from utils.cal_utils import generate_calendar_image
 from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering
 
 app = Flask(__name__)
@@ -29,6 +32,31 @@ calendars = [
 ]
 update_frequency = DEFAULT_UPDATE_FREQUENCY
 should_dither = False
+generate_image_lock = threading.Lock()
+
+def scheduled_generate_image():
+    """
+    Generates the calendar image and header file.
+    This function is designed to be called by the scheduler.
+    """
+    with generate_image_lock:
+        print("Starting scheduled calendar image generation...")
+        generateImage()
+        print(f"Finished generating calendar image at: {datetime.now()}")
+
+
+def schedule_generate_image_job(frequency_minutes):
+    """Schedules the generate_image job to run at the specified frequency."""
+    schedule.clear()
+    print(f"Scheduling generateImage every {frequency_minutes} minutes")
+    schedule.every(frequency_minutes).minutes.do(scheduled_generate_image)
+
+
+def run_scheduler():
+    """Runs the scheduler in a separate thread."""
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -91,7 +119,7 @@ def showImage():
 def generateImage():
     resolution = DEFAULT_RESOLUTION
     try:
-        image = generate_image(
+        image = generate_calendar_image(
             resolution=resolution,
             calendars=calendars,
             start_time=8,
@@ -157,16 +185,17 @@ def wakeup_interval():
     current_time = now.time()
 
     # Define time boundaries
-    morning_time = time(8, 0)  # 8 AM
-    evening_time = time(20, 0)  # 8 PM
+    morning_time = time(6, 0)
+    evening_time = time(22, 0)
 
-    if True: # morning_time <= current_time < evening_time:
-        interval = 3600  # 1 hour in seconds
+    if morning_time <= current_time < evening_time:
+        interval = update_frequency * 60  # in seconds
     else:
         # Calculate seconds until the next 8 AM
         next_morning = datetime.combine(now.date() + timedelta(days=1), morning_time)
         interval = int((next_morning - now).total_seconds())
 
+    schedule_generate_image_job(update_frequency - 10)
     return jsonify(interval=interval)
 
 if __name__ == "__main__":
