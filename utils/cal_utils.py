@@ -1,7 +1,9 @@
-from ics import Calendar as icsCal
 import requests
-import datetime
+from icalendar import Calendar, Event, vDatetime
+from datetime import datetime, date as dtdate
 import pytz
+from dateutil import rrule
+import argparse
 import logging
 
 from utils.app_utils import get_font
@@ -24,6 +26,80 @@ def wrap_text(text, font, max_width):
         lines.append(current_line)  # Append the last line
         return '\n'.join(lines)
 
+def get_ical_events(ical_url, start_date, end_date, timezone_str):
+    """Retrieves events from an iCal URL within a specified date range and timezone."""
+
+    try:
+        response = requests.get(ical_url)
+        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+        cal = Calendar.from_ical(response.text)
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching iCal file: {e}")
+        return []
+    except ValueError as e: # Catch errors from icalendar parsing
+        print(f"Error parsing iCal data: {e}")
+        return []
+
+    timezone = pytz.timezone(timezone_str)
+    start_date = timezone.localize(start_date.replace(hour=0, minute=0, second=0, microsecond=0))
+    end_date = timezone.localize(end_date.replace(hour=23, minute=59, second=59, microsecond=0))
+
+    events_list = []
+
+    for component in cal.walk('VEVENT'):
+        event = {}
+        event['summary'] = str(component.get('summary')) if component.get('summary') else "No Summary"
+        event['description'] = str(component.get('description')) if component.get('description') else ""
+        event['location'] = str(component.get('location')) if component.get('location') else ""
+
+        start = component.get('dtstart').dt
+        end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
+
+        if isinstance(start, datetime):
+            if start.tzinfo is None:
+                start = pytz.utc.localize(start).astimezone(timezone)
+            else:
+                start = start.astimezone(timezone)
+        if isinstance(end, datetime):
+            if end.tzinfo is None:
+                end = pytz.utc.localize(end).astimezone(timezone)
+            else:
+                end = end.astimezone(timezone)
+
+        if (type(start) is dtdate or type(end) is dtdate):
+            print("is all day event")
+            continue  # Skip all-day events
+
+        print(f"start: {start}, end: {end}")
+
+        if 'RRULE' in component:  # Handle recurring events
+            rule = rrule.rrulestr(component['RRULE'].to_ical().decode('utf-8'), dtstart=start)
+            for occurrence in rule.between(start_date, end_date, inc=True):
+                occurrence_end = end + (occurrence - start) #calculate end of recurring event.
+                if occurrence_end < occurrence:
+                    occurrence_end = occurrence # edge case handling.
+                if occurrence_end.date() < start_date.date() or occurrence.date() > end_date.date():
+                    continue;
+                
+                events_list.append({
+                    'summary': event['summary'],
+                    'description': event['description'],
+                    'location': event['location'],
+                    'start': occurrence,
+                    'end': occurrence_end,
+                })
+        else:
+            if start_date <= start <= end_date or start_date <= end <= end_date or (start <= start_date and end >= end_date):
+                events_list.append({
+                    'summary': event['summary'],
+                    'description': event['description'],
+                    'location': event['location'],
+                    'start': start,
+                    'end': end,
+                })
+
+    return sorted(events_list, key=lambda x: x['start'])
+
 def generate_calendar_image(resolution, calendars, start_time, end_time, 
                    days_to_show, event_card_radius, event_text_size, title_text_size, 
                    grid_color, event_text_color, legend_color):
@@ -40,8 +116,10 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
         
         
         # Get today's date in the Vancouver timezone
-        vancouver_timezone = pytz.timezone("America/Vancouver")
-        today = datetime.datetime.now(vancouver_timezone)
+        timzone_string = "America/Vancouver"
+        vancouver_timezone = pytz.timezone(timzone_string)
+        today = datetime.datetime.now(vancouver_timezone).date()
+        end_of_week = today + datetime.timedelta(days=days_to_show - 1)
 
         # Image generation (similar to before)
         img = Image.new('RGBA', resolution, background_color)
@@ -92,18 +170,10 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
             draw.text((grid_start_x - 35, y_pos), hour_str, font=titleFont, fill=legend_color)
 
         # Filter events for the next days
-        end_of_week = today + datetime.timedelta(days=days_to_show - 1)
-
         all_events_this_week = []
         for cal_data in calendars:
             try:
-                calendar = icsCal(requests.get(cal_data['ical_url']).text)
-                events = calendar.events
-                events_this_week = [
-                    event for event in events
-                    if today.date() <= event.begin.datetime.astimezone(vancouver_timezone).date() <= end_of_week.date()
-                    and (event.begin.datetime.astimezone(vancouver_timezone).date() == event.end.datetime.astimezone(vancouver_timezone).date())
-                ]
+                events_this_week = get_ical_events((cal_data['ical_url']).text, today, end_of_week, timzone_string)
                 for event in events_this_week:
                     event.color = cal_data['color']
                 all_events_this_week.extend(events_this_week)
