@@ -6,7 +6,7 @@ from dateutil import rrule
 import argparse
 import logging
 
-from utils.app_utils import get_font
+from utils.app_utils import get_font, show_text_image
 from PIL import Image, ImageDraw, ImageFont
 
 logger = logging.getLogger(__name__)
@@ -108,11 +108,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
         #Handle empty calendar list
         if not calendars:
              # Handle the case where the URL is not provided
-            img = Image.new('RGBA', resolution, background_color)
-            draw = ImageDraw.Draw(img)
-            font = ImageFont.load_default()
-            draw.text((10, 10), "No iCal URLs provided in settings.", font=font, fill=0)
-            return img
+            return show_text_image("No iCal URLs provided in settings.")
         
         
         # Get today's date in the Vancouver timezone
@@ -178,11 +174,13 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
                     event.color = cal_data['color']
                 all_events_this_week.extend(events_this_week)
             except requests.exceptions.RequestException as e:
-                logger.error(f"Error fetching calendar {cal_data['calendar_name']}: {e}")
+                error_message = f"Error fetching calendar {cal_data['calendar_name']}: {e}"
+                logger.error(error_message)
+                return show_text_image(error_message)
 
         # --- Draw Events ---
         if not all_events_this_week:
-            draw.text((grid_start_x, grid_start_y), 'No upcoming events found.', font=titleFont, fill=0)
+            return show_text_image('No upcoming events found.')
         else:
             for event in all_events_this_week:
                 # Access event data using properties

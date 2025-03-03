@@ -1,5 +1,5 @@
 import requests
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import numpy as np
 import logging
@@ -25,6 +25,14 @@ def get_image(image_url):
         img = Image.open(BytesIO(response.content))
     else:
         logger.error(f"Received non-200 response from {image_url}: status_code: {response.status_code}")
+    return img
+
+def show_text_image(text, font = None):
+    img = Image.new('RGBA', resolution, background_color)
+    draw = ImageDraw.Draw(img)
+    if (font is None):
+        font = get_font("roboto-bold", 18)
+    draw.text((10, 10), text, font=font, fill=0)
     return img
 
 def change_orientation(image, orientation):
