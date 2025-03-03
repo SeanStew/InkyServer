@@ -166,21 +166,19 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
                     # Draw the event rectangle
                     #Only draw event if in valid time frame.
                     if start_time <= start_dt.hour <= end_time:
-                        # Check if event has name before accessing it.
-                        if hasattr(event, 'name') and event.name:
-                            draw.rounded_rectangle(
-                                [
-                                    (x_pos, y_pos),
-                                    (x_pos + cell_width, y_pos + event_height)
-                                ],
-                                event_card_radius,
-                                outline=0,
-                                fill=event_color
-                            )
-    
-                            # Draw event summary with wrapping
-                            wrapped_text = wrap_text(event.name, textFont, cell_width - 10)
-                            draw.multiline_text((x_pos + 5, y_pos + 5), wrapped_text, font=textFont, fill=event_text_color)
+                        draw.rounded_rectangle(
+                            [
+                                (x_pos, y_pos),
+                                (x_pos + cell_width, y_pos + event_height)
+                            ],
+                            event_card_radius,
+                            outline=0,
+                            fill=event_color
+                        )
+
+                        # Draw event summary with wrapping
+                        wrapped_text = wrap_text("test", textFont, cell_width - 10)
+                        draw.multiline_text((x_pos + 5, y_pos + 5), wrapped_text, font=textFont, fill=event_text_color)
                 except Exception as ex:
                     logger.error(f"Unexpected error drawing event: {ex}")
 
