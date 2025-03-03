@@ -3,7 +3,7 @@ import os
 from datetime import datetime, time, timedelta
 from PIL import Image
 
-from utils.cal_utils import generate_image
+from utils.cal_utils import generate_calendar_image
 from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering
 
 app = Flask(__name__)
@@ -91,7 +91,7 @@ def showImage():
 def generateImage():
     resolution = DEFAULT_RESOLUTION
     try:
-        image = generate_image(
+        image = generate_calendar_image(
             resolution=resolution,
             calendars=calendars,
             start_time=8,
