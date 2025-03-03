@@ -49,8 +49,6 @@ def schedule_generate_image_job(frequency_minutes):
     schedule.clear()
     print(f"Scheduling generateImage to run once in {frequency_minutes} minutes")
     schedule.every(frequency_minutes).minutes.do(scheduled_generate_image)
-    run_scheduler()
-
 
 def run_scheduler():
     """Runs the scheduler in a separate thread."""
@@ -196,7 +194,8 @@ def wakeup_interval():
         interval = int((next_morning - now).total_seconds())
 
     #Re-schedule the job when settings are saved
-    schedule_generate_image_job(update_frequency - 10)
+    threading.Thread(target=lambda: schedule_generate_image_job(update_frequency - 10)).start()
+    
     return jsonify(interval=interval)
 
 if __name__ == "__main__":
