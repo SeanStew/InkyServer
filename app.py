@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, send_file, jsonify
 import os
 from datetime import datetime, time, timedelta
 from PIL import Image
+import threading
+import time as time_module
 
 from utils.cal_utils import generate_calendar_image
 from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering
@@ -29,6 +31,38 @@ calendars = [
 ]
 update_frequency = DEFAULT_UPDATE_FREQUENCY
 should_dither = False
+
+# Global variables
+trigger_generate_image = False
+generate_image_trigger_time = None  # Timestamp when generateImage() should be triggered
+
+def generate_image_task():
+    """
+    Task to run generateImage() if the trigger time has passed.
+    """
+    global trigger_generate_image, generate_image_trigger_time
+    
+    if trigger_generate_image:
+        now = datetime.now()
+        if now >= generate_image_trigger_time:
+            with app.app_context():  # Ensure we're in Flask app context
+                print("Running generateImage() task...")
+                generateImage()  # Call the function directly
+                print("generateImage() task completed.")
+                trigger_generate_image = False
+                generate_image_trigger_time = None  # Reset the trigger time
+        else:
+            print(f"generateImage() task will run later at {generate_image_trigger_time}")
+    else:
+        print("generateImage() task not triggered.")
+
+def scheduled_task():
+    """
+    Function to run periodically to check if generateImage() needs to be run.
+    """
+    while True:
+        generate_image_task()
+        time_module.sleep(10)  # Check every 10 seconds
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -153,6 +187,8 @@ def getImage():
 
 @app.route('/nextPullInterval', methods=['GET'])
 def wakeup_interval():
+    global trigger_generate_image, generate_image_trigger_time
+
     now = datetime.now()
     current_time = now.time()
 
@@ -166,8 +202,21 @@ def wakeup_interval():
         # Calculate seconds until the next 8 AM
         next_morning = datetime.combine(now.date() + timedelta(days=1), morning_time)
         interval = int((next_morning - now).total_seconds())
+    
+    # Set the trigger flag to True and calculate the trigger time 30 minutes from now
+    trigger_generate_image = True
+    duration_to_wait = interval - 600
+    if (duration_to_wait < 0):
+        duration_to_wait = 600
+    generate_image_trigger_time = now + timedelta(seconds=duration_to_wait)
+    print(f"generateImage() will be triggered at {generate_image_trigger_time}")
 
     return jsonify(interval=interval)
 
 if __name__ == "__main__":
+    # Start the periodic task in a separate thread
+    task_thread = threading.Thread(target=scheduled_task)
+    task_thread.daemon = True  # Allow the main program to exit even if this thread is running
+    task_thread.start()
+
     app.run(debug=True, host="0.0.0.0")
