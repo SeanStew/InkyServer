@@ -6,7 +6,8 @@ from dateutil import rrule
 import argparse
 import logging
 
-from utils.app_utils import get_font, show_text_image
+from utils.app_utils import get_font
+from utils.image_utils import show_text_image
 from PIL import Image, ImageDraw, ImageFont
 
 logger = logging.getLogger(__name__)

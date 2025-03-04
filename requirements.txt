@@ -8,3 +8,4 @@ ics
 datetime
 schedule
 python-dateutil
+icalendar
