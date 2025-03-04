@@ -1,14 +1,13 @@
 import requests
-from icalendar import Calendar, Event, vDatetime
-from datetime import datetime as dt, date as dtdate
+from icalendar import Calendar
+from datetime import datetime, timedelta, date as dtdate
 import pytz
 from dateutil import rrule
-import argparse
 import logging
 
 from utils.app_utils import get_font
 from utils.image_utils import show_text_image
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 logger = logging.getLogger(__name__)
 
@@ -115,8 +114,8 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
         # Get today's date in the Vancouver timezone
         timzone_string = "America/Vancouver"
         vancouver_timezone = pytz.timezone(timzone_string)
-        today = dt.now(vancouver_timezone).date()
-        end_of_week = today + dt.timedelta(days=days_to_show - 1)
+        today = datetime.now(vancouver_timezone).date()
+        end_of_week = today + timedelta(days=days_to_show - 1)
 
         # Image generation (similar to before)
         img = Image.new('RGBA', resolution, background_color)
@@ -147,7 +146,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
 
         # --- Date Labels ---
         for i in range(days_to_show):
-            day = today + dt.timedelta(days=i)
+            day = today + timedelta(days=i)
             day_str = day.strftime("%a %d")  # Format: "Mon 11"
             x_pos = grid_start_x + i * cell_width + cell_width / 2 - titleFont.getlength(day_str) / 2
             draw.text((x_pos, grid_start_y - 20), day_str, font=titleFont, fill=legend_color)
