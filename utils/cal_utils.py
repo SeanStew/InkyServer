@@ -169,7 +169,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
         all_events_this_week = []
         for cal_data in calendars:
             try:
-                events_this_week = get_ical_events((cal_data['ical_url']).text, today, end_of_week, timzone_string)
+                events_this_week = get_ical_events((cal_data['ical_url']), today, end_of_week, timzone_string)
                 for event in events_this_week:
                     event.color = cal_data['color']
                 all_events_this_week.extend(events_this_week)
