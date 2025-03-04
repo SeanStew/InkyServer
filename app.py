@@ -62,7 +62,7 @@ def scheduled_task():
     """
     while True:
         generate_image_task()
-        time_module.sleep(10)  # Check every 10 seconds
+        time_module.sleep(60*5)  # Check every 5 minutes
 
 @app.route("/", methods=["GET", "POST"])
 def index():
