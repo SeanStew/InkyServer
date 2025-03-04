@@ -49,7 +49,7 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
     for component in cal.walk('VEVENT'):
         # Check for cancelled or moved events
         status = component.get('STATUS')
-        print(f"Status: {status}")
+        print(f"Summary: {component.get('summary')}, Status: {status}")
         if status:
             if str(status).upper() == "CANCELLED":
                 print("Skipping Cancelled event")
