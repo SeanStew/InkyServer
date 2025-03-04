@@ -171,8 +171,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
             try:
                 events_this_week = get_ical_events((cal_data['ical_url']), datetime.now(), datetime.now() + timedelta(days=days_to_show -1), timzone_string)
                 for event in events_this_week:
-                    print("add Color")
-                    event.color = cal_data['color']
+                    event['color'] = cal_data['color']
                 all_events_this_week.extend(events_this_week)
             except requests.exceptions.RequestException as e:
                 error_message = f"Error fetching calendar {cal_data['calendar_name']}: {e}"
@@ -198,8 +197,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
                 event_duration_hours = (end_dt - start_dt).total_seconds() / 3600
                 event_height = event_duration_hours * cell_height
                 
-                print(f"check Color: {event.color}")
-                event_color = event.color if hasattr(event,"color") else "#ff0000" #Fallback to red if no color
+                event_color = event['color'] if 'color' in event else "#ff0000"
 
                 # Draw the event rectangle
                 if start_time <= start_dt.hour <= end_time or start_time <= end_dt.hour <= end_time:
