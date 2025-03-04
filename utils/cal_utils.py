@@ -115,7 +115,6 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
         timzone_string = "America/Vancouver"
         vancouver_timezone = pytz.timezone(timzone_string)
         today = datetime.now(vancouver_timezone).date()
-        end_of_week = today + timedelta(days=days_to_show - 1)
 
         # Image generation (similar to before)
         img = Image.new('RGBA', resolution, background_color)
@@ -186,6 +185,8 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
                 # Access event data using properties
                 start_dt = event['start'].astimezone(vancouver_timezone)  # Get start time as datetime object
                 end_dt = event['end'].astimezone(vancouver_timezone)    # Get end time as datetime object
+
+                print(f"draw ready - start: {start_dt}, end: {end_dt}")
 
                 # Calculate event position and duration
                 day_offset = (start_dt.date() - today.date()).days
