@@ -1,6 +1,6 @@
 import requests
 from icalendar import Calendar, Event, vDatetime
-from datetime import datetime, date as dtdate
+from datetime import datetime as dt, date as dtdate
 import pytz
 from dateutil import rrule
 import argparse
@@ -56,12 +56,12 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         start = component.get('dtstart').dt
         end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
 
-        if isinstance(start, datetime):
+        if isinstance(start, dt):
             if start.tzinfo is None:
                 start = pytz.utc.localize(start).astimezone(timezone)
             else:
                 start = start.astimezone(timezone)
-        if isinstance(end, datetime):
+        if isinstance(end, dt):
             if end.tzinfo is None:
                 end = pytz.utc.localize(end).astimezone(timezone)
             else:
@@ -115,8 +115,8 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
         # Get today's date in the Vancouver timezone
         timzone_string = "America/Vancouver"
         vancouver_timezone = pytz.timezone(timzone_string)
-        today = datetime.now(vancouver_timezone).date()
-        end_of_week = today + datetime.timedelta(days=days_to_show - 1)
+        today = dt.now(vancouver_timezone).date()
+        end_of_week = today + dt.timedelta(days=days_to_show - 1)
 
         # Image generation (similar to before)
         img = Image.new('RGBA', resolution, background_color)
@@ -147,7 +147,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
 
         # --- Date Labels ---
         for i in range(days_to_show):
-            day = today + datetime.timedelta(days=i)
+            day = today + dt.timedelta(days=i)
             day_str = day.strftime("%a %d")  # Format: "Mon 11"
             x_pos = grid_start_x + i * cell_width + cell_width / 2 - titleFont.getlength(day_str) / 2
             draw.text((x_pos, grid_start_y - 20), day_str, font=titleFont, fill=legend_color)
