@@ -184,8 +184,8 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
         else:
             for event in all_events_this_week:
                 # Access event data using properties
-                start_dt = event['start'].datetime.astimezone(vancouver_timezone)  # Get start time as datetime object
-                end_dt = event['end'].datetime.astimezone(vancouver_timezone)    # Get end time as datetime object
+                start_dt = event['start'].astimezone(vancouver_timezone)  # Get start time as datetime object
+                end_dt = event['end'].astimezone(vancouver_timezone)    # Get end time as datetime object
 
                 # Calculate event position and duration
                 day_offset = (start_dt.date() - today.date()).days
