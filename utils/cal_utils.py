@@ -44,7 +44,7 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
     start_date = timezone.localize(start_date.replace(hour=0, minute=0, second=0, microsecond=0))
     end_date = timezone.localize(end_date.replace(hour=23, minute=59, second=59, microsecond=0))
 
-    events_list = []
+    events_dict = {}  # Use a dictionary to store events by UID
 
     for component in cal.walk('VEVENT'):
         # Check for cancelled or moved events
@@ -59,6 +59,8 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         event['summary'] = str(component.get('summary')) if component.get('summary') else "No Summary"
         event['description'] = str(component.get('description')) if component.get('description') else ""
         event['location'] = str(component.get('location')) if component.get('location') else ""
+        event['sequence'] = int(component.get('SEQUENCE')) if component.get('SEQUENCE') is not None else 0
+        event['uid'] = str(component.get('UID')) if component.get('UID') is not None else ""
 
         start = component.get('dtstart').dt
         end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
@@ -81,30 +83,35 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         if 'RRULE' in component:  # Handle recurring events
             rule = rrule.rrulestr(component['RRULE'].to_ical().decode('utf-8'), dtstart=start)
             for occurrence in rule.between(start_date, end_date, inc=True):
-                occurrence_end = end + (occurrence - start) #calculate end of recurring event.
+                occurrence_end = end + (occurrence - start)  # calculate end of recurring event.
                 if occurrence_end < occurrence:
-                    occurrence_end = occurrence # edge case handling.
+                    occurrence_end = occurrence  # edge case handling.
                 if occurrence_end.date() < start_date.date() or occurrence.date() > end_date.date():
                     continue;
-                
-                events_list.append({
+
+                occurrence_event = {
                     'summary': event['summary'],
                     'description': event['description'],
                     'location': event['location'],
                     'start': occurrence,
                     'end': occurrence_end,
-                })
+                    'sequence': event['sequence'],
+                    'uid': event['uid']
+                }
+                #Check for duplicate UIDs
+                if occurrence_event['uid'] not in events_dict or occurrence_event['sequence'] > events_dict[occurrence_event['uid']]['sequence']:
+                  events_dict[occurrence_event['uid']] = occurrence_event
+                
         else:
             if start_date <= start <= end_date or start_date <= end <= end_date or (start <= start_date and end >= end_date):
-                events_list.append({
-                    'summary': event['summary'],
-                    'description': event['description'],
-                    'location': event['location'],
-                    'start': start,
-                    'end': end,
-                })
+                event['start'] = start
+                event['end'] = end
 
-    return sorted(events_list, key=lambda x: x['start'])
+                # Check for duplicate UIDs
+                if event['uid'] not in events_dict or event['sequence'] > events_dict[event['uid']]['sequence']:
+                    events_dict[event['uid']] = event
+
+    return sorted(events_dict.values(), key=lambda x: x['start'])
 
 def generate_calendar_image(resolution, calendars, start_time, end_time, 
                    days_to_show, event_card_radius, event_text_size, title_text_size, 
