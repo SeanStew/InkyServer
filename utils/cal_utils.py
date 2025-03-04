@@ -41,8 +41,8 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         return []
 
     timezone = pytz.timezone(timezone_str)
-    start_date = timezone.localize(start_date)
-    end_date = timezone.localize(end_date)
+    start_date = timezone.localize(start_date.replace(hour=0, minute=0, second=0, microsecond=0))
+    end_date = timezone.localize(end_date.replace(hour=23, minute=59, second=59, microsecond=0))
 
     events_list = []
 
@@ -55,10 +55,6 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         start = component.get('dtstart').dt
         end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
 
-        if (type(start) is dtdate or type(end) is dtdate):
-            print("is all day event")
-            continue  # Skip all-day events
-
         if isinstance(start, datetime):
             if start.tzinfo is None:
                 start = pytz.utc.localize(start).astimezone(timezone)
@@ -69,6 +65,10 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
                 end = pytz.utc.localize(end).astimezone(timezone)
             else:
                 end = end.astimezone(timezone)
+
+        if (type(start) is dtdate or type(end) is dtdate):
+            print("is all day event")
+            continue  # Skip all-day events
 
         print(f"start: {start}, end: {end}")
 
@@ -169,7 +169,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
         all_events_this_week = []
         for cal_data in calendars:
             try:
-                events_this_week = get_ical_events((cal_data['ical_url']), today, end_of_week, timzone_string)
+                events_this_week = get_ical_events((cal_data['ical_url']), datetime.now(), datetime.now() + timedelta(days=days_to_show -1), timzone_string)
                 for event in events_this_week:
                     event.color = cal_data['color']
                 all_events_this_week.extend(events_this_week)
