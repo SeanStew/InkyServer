@@ -41,8 +41,8 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         return []
 
     timezone = pytz.timezone(timezone_str)
-    start_date = timezone.localize(start_date.replace(hour=0, minute=0, second=0, microsecond=0))
-    end_date = timezone.localize(end_date.replace(hour=23, minute=59, second=59, microsecond=0))
+    start_date = timezone.localize(start_date)
+    end_date = timezone.localize(end_date)
 
     events_list = []
 
