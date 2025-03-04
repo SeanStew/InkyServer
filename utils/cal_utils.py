@@ -115,7 +115,7 @@ def generate_calendar_image(resolution, calendars, start_time, end_time,
         # Get today's date in the Vancouver timezone
         timzone_string = "America/Vancouver"
         vancouver_timezone = pytz.timezone(timzone_string)
-        today = datetime.datetime.now(vancouver_timezone).date()
+        today = datetime.now(vancouver_timezone).date()
         end_of_week = today + datetime.timedelta(days=days_to_show - 1)
 
         # Image generation (similar to before)
