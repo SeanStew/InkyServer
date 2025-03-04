@@ -41,8 +41,8 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         return []
 
     timezone = pytz.timezone(timezone_str)
-    start_date = timezone.localize(start_date)
-    end_date = timezone.localize(end_date)
+    start_date = timezone.localize(start_date.replace(hour=0, minute=0, second=0, microsecond=0))
+    end_date = timezone.localize(end_date.replace(hour=23, minute=59, second=59, microsecond=0))
 
     events_list = []
 
@@ -55,12 +55,12 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         start = component.get('dtstart').dt
         end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
 
-        if isinstance(start, dt):
+        if isinstance(start, datetime):
             if start.tzinfo is None:
                 start = pytz.utc.localize(start).astimezone(timezone)
             else:
                 start = start.astimezone(timezone)
-        if isinstance(end, dt):
+        if isinstance(end, datetime):
             if end.tzinfo is None:
                 end = pytz.utc.localize(end).astimezone(timezone)
             else:
