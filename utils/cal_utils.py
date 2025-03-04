@@ -47,6 +47,14 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
     events_list = []
 
     for component in cal.walk('VEVENT'):
+        # Check for cancelled or moved events
+        status = component.get('STATUS')
+        print(f"Status: {status}")
+        if status:
+            if str(status).upper() == "CANCELLED":
+                print("Skipping Cancelled event")
+                continue
+
         event = {}
         event['summary'] = str(component.get('summary')) if component.get('summary') else "No Summary"
         event['description'] = str(component.get('description')) if component.get('description') else ""
@@ -54,6 +62,10 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
 
         start = component.get('dtstart').dt
         end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
+
+        if (type(start) is dtdate or type(end) is dtdate):
+            print("Skipping all day event")
+            continue  # Skip all-day events
 
         if isinstance(start, datetime):
             if start.tzinfo is None:
@@ -65,12 +77,6 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
                 end = pytz.utc.localize(end).astimezone(timezone)
             else:
                 end = end.astimezone(timezone)
-
-        if (type(start) is dtdate or type(end) is dtdate):
-            print("is all day event")
-            continue  # Skip all-day events
-
-        print(f"start: {start}, end: {end}")
 
         if 'RRULE' in component:  # Handle recurring events
             rule = rrule.rrulestr(component['RRULE'].to_ical().decode('utf-8'), dtstart=start)
