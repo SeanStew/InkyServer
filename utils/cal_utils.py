@@ -51,7 +51,6 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         status = component.get('STATUS')
         if status:
             if str(status).upper() == "CANCELLED":
-                print("Skipping Cancelled event")
                 continue
 
         event = {}
@@ -65,7 +64,6 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
 
         if (type(start) is dtdate or type(end) is dtdate):
-            print("Skipping all day event")
             continue  # Skip all-day events
 
         if isinstance(start, datetime):
