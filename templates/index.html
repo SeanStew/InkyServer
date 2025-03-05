@@ -2,299 +2,92 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar Settings</title>
-    <!-- Material Design for Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/material-components-web@latest/dist/material-components-web.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Inky Calendar Settings</title>
     <style>
         body {
-            font-family: Roboto, sans-serif;
-            margin: 20px;
-            background-color: #303030; /* Dark gray background */
-            color: #eeeeee; /* Light text color */
+            font-family: sans-serif;
         }
-
-        .mdc-card {
-            margin-bottom: 20px;
-            background-color: #424242; /* Dark card background */
-            color: #eeeeee;
+        .calendar-entry {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
         }
-
-        .mdc-card__content {
-            padding: 20px;
+        .calendar-entry label {
+            display: block;
+            margin-bottom: 5px;
         }
-
-        .mdc-text-field {
+        .calendar-entry input[type="text"],
+        .calendar-entry input[type="color"] {
             width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
         }
-        .mdc-text-field--filled {
-          background-color: #555; /* Darker input background */
-          --mdc-text-field-ink-color: #eeeeee;
-        }
-
-        .mdc-text-field--filled .mdc-text-field__input,
-        .mdc-text-field--filled .mdc-floating-label {
-          color: #eeeeee;
-        }
-
-        .mdc-text-field--filled .mdc-line-ripple::before {
-            border-bottom-color: #eeeeee;
-        }
-        .mdc-text-field__input {
-            color: #eeeeee;
-        }
-
-        .mdc-button {
-            margin-top: 20px;
-            --mdc-theme-primary: #03dac6;
-            --mdc-theme-on-primary: #000;
-        }
-
-        .color-option {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 1px solid #000;
-            cursor: pointer;
-            margin-right: 5px;
-            border-radius: 50%; /* Make color options circular */
-            vertical-align: middle;
-        }
-
-        .color-radio {
-            display: none;
-        }
-
-        .color-option.selected {
-            border-width: 3px;
-            border-color: #03dac6;
-        }
-
-        .color-picker-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            align-items: center;
-        }
-
-        .mdc-data-table {
-          width: 100%;
-          background-color: #424242;
-        }
-
-        .mdc-data-table__cell{
-          padding: 10px;
-          color: #eeeeee;
-        }
-        .mdc-data-table__header-cell {
-          color: #eeeeee;
-          background-color: #424242;
-        }
-        .mdc-data-table__row:not(:last-of-type) {
-            border-bottom: 1px solid #555;
-        }
-
-        .mdc-icon-button {
-            --mdc-icon-button-icon-color: #eeeeee;
-        }
-        .remove-button {
-            cursor: pointer;
+        .calendar-entry select {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
-    <div class="mdc-card">
-        <div class="mdc-card__content">
-            <h1 class="mdc-typography--headline6">Calendar Settings</h1>
+    <h1>Inky Calendar Settings</h1>
+
+    <form method="post">
+        <h2>Calendars</h2>
+        {% for calendar in calendars %}
+        <div class="calendar-entry">
+            <label for="ical_url_{{ loop.index0 }}">iCal URL:</label>
+            <input type="text" id="ical_url_{{ loop.index0 }}" name="ical_url" value="{{ calendar.ical_url }}" required>
+            <label for="calendar_name_{{ loop.index0 }}">Calendar Name:</label>
+            <input type="text" id="calendar_name_{{ loop.index0 }}" name="calendar_name" value="{{ calendar.calendar_name }}" required>
+            <label for="color_{{ loop.index0 }}">Calendar Color:</label>
+            <select id="color_{{ loop.index0 }}" name="color">
+                {% for color_hex, color_name in allowed_colors.items() %}
+                    <option value="{{ color_hex }}" {% if calendar.color == color_hex %}selected{% endif %}>{{ color_name }}</option>
+                {% endfor %}
+            </select>
         </div>
-    </div>
+        {% endfor %}
 
-    <div class="mdc-card">
-      <div class="mdc-card__content">
-        <form method="POST">
-          <div class="mdc-data-table">
-            <div class="mdc-data-table__table-container">
-              <table class="mdc-data-table__table" aria-label="Calendar Settings Table">
-                <thead>
-                  <tr class="mdc-data-table__header-row">
-                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col">iCal URL</th>
-                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Calendar Name</th>
-                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Color</th>
-                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col"></th>
-                  </tr>
-                </thead>
-                <tbody class="mdc-data-table__content" id="calendar-table-body">
-                  {% for calendar in calendars %}
-                  <tr class="mdc-data-table__row" {% if loop.index0 == 0 %} id="first-row" {% endif %}>
-                    <td class="mdc-data-table__cell">
-                      <div class="mdc-text-field mdc-text-field--filled">
-                        <span class="mdc-text-field__ripple"></span>
-                        <input class="mdc-text-field__input" type="url" name="ical_url" value="{{ calendar.ical_url }}" required>
-                        <span class="mdc-line-ripple"></span>
-                      </div>
-                    </td>
-                    <td class="mdc-data-table__cell">
-                      <div class="mdc-text-field mdc-text-field--filled">
-                        <span class="mdc-text-field__ripple"></span>
-                        <input class="mdc-text-field__input" type="text" name="calendar_name" value="{{ calendar.calendar_name }}" required>
-                        <span class="mdc-line-ripple"></span>
-                      </div>
-                    </td>
-                    <td class="mdc-data-table__cell">
-                      <div class="color-picker-container">
-                        <!-- Hidden input to store the selected color -->
-                        <input type="hidden" name="color" value="{{ calendar.color }}" class="color-input">
-                        {% for color_code, color_name in allowed_colors.items() %}
-                        <input type="radio" id="{{ calendar.calendar_name }}{{ color_code }}" name="{{ calendar.calendar_name }}color_radio" value="{{ color_code }}" class="color-radio" {% if calendar.color == color_code %} checked {% endif %}>
-                        <label for="{{ calendar.calendar_name }}{{ color_code }}" class="color-option" style="background-color: {{ color_code }};" title="{{ color_name }}"></label>
-                        {% endfor %}
-                      </div>
-                    </td>
-                    <td class="mdc-data-table__cell">
-                      {% if loop.index0 != 0 %}
-                        <i class="material-icons remove-button" onclick="removeCalendarRow(this)">remove_circle</i>
-                       {% endif %}
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          
-          <button type="button" class="mdc-button mdc-button--raised" id="add-calendar-row">
-            <span class="mdc-button__ripple"></span>
-            <i class="material-icons">add</i>
-            <span class="mdc-button__label">Add Calendar</span>
-          </button>
-          <br />
-          <br />
+        <h2>Display Settings</h2>
+        <div>
+            <label for="update_frequency">Update Frequency (minutes):</label>
+            <input type="number" id="update_frequency" name="update_frequency" value="{{ settings.update_frequency }}" min="1" required>
+        </div>
+        <div>
+            <label for="days_to_show">Days to Show:</label>
+            <input type="number" id="days_to_show" name="days_to_show" value="{{ settings.days_to_show }}" min="1" required>
+        </div>
+        <div>
+            <label for="event_text_size">Event Text Size:</label>
+            <input type="number" id="event_text_size" name="event_text_size" value="{{ settings.event_text_size }}" min="1" required>
+        </div>
+        <div>
+            <label for="title_text_size">Title Text Size:</label>
+            <input type="number" id="title_text_size" name="title_text_size" value="{{ settings.title_text_size }}" min="1" required>
+        </div>
+        <div>
+            <label for="grid_color">Grid Color:</label>
+            <select id="grid_color" name="grid_color">
+                {% for color_hex, color_name in allowed_colors.items() %}
+                    <option value="{{ color_hex }}" {% if settings.grid_color == color_hex %}selected{% endif %}>{{ color_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="legend_color">Legend Color:</label>
+             <select id="legend_color" name="legend_color">
+                {% for color_hex, color_name in allowed_colors.items() %}
+                    <option value="{{ color_hex }}" {% if settings.legend_color == color_hex %}selected{% endif %}>{{ color_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit">Save Settings</button>
+    </form>
 
-          <div class="mdc-text-field mdc-text-field--filled">
-            <span class="mdc-text-field__ripple"></span>
-            <input class="mdc-text-field__input" type="number" name="update_frequency" id="update_frequency" value="{{ update_frequency }}" required>
-            <label class="mdc-floating-label" for="update_frequency">Update Frequency (minutes):</label>
-            <span class="mdc-line-ripple"></span>
-          </div>
-
-          <button type="submit" class="mdc-button mdc-button--raised">
-            <span class="mdc-button__ripple"></span>
-            <span class="mdc-button__label">Save Settings</span>
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Material Design for Bootstrap JS (optional, for certain components) -->
-    <script src="https://cdn.jsdelivr.net/npm/material-components-web@latest/dist/material-components-web.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Add click event listener to color options
-            $('.color-option').click(function () {
-                // Remove selected class from all options in the same container
-                $(this).closest('.color-picker-container').find('.color-option').removeClass('selected');
-                // Add selected class to the clicked option
-                $(this).addClass('selected');
-
-                // Get the color value from the clicked option
-                var selectedColor = $(this).prev('.color-radio').val();
-                // Update the hidden input field with the selected color
-                $(this).closest('.color-picker-container').find('.color-input').val(selectedColor);
-
-                $(this).prev('.color-radio').prop('checked', true);
-            });
-
-             // Initialize all text fields.
-            const textField = document.querySelectorAll('.mdc-text-field');
-            for (const elem of textField) {
-                mdc.textField.MDCTextField.attachTo(elem);
-            }
-
-            // Initialize the data table.
-            const dataTable = document.querySelectorAll('.mdc-data-table');
-            for (const elem of dataTable) {
-                mdc.dataTable.MDCDataTable.attachTo(elem);
-            }
-
-            // Initialize all buttons.
-            const button = document.querySelectorAll('.mdc-button');
-            for (const elem of button) {
-                mdc.ripple.MDCRipple.attachTo(elem);
-            }
-
-            //Initialize the add calendar row button
-            $('#add-calendar-row').click(function() {
-                addCalendarRow();
-            });
-        });
-
-        let calendarCount = {{ calendars|length }};
-        const allowedColors = {{ allowed_colors|tojson }};
-
-        function addCalendarRow() {
-            calendarCount++;
-            const newRow = `
-                <tr class="mdc-data-table__row">
-                    <td class="mdc-data-table__cell">
-                        <div class="mdc-text-field mdc-text-field--filled">
-                            <span class="mdc-text-field__ripple"></span>
-                            <input class="mdc-text-field__input" type="url" name="ical_url" required>
-                            <span class="mdc-line-ripple"></span>
-                        </div>
-                    </td>
-                    <td class="mdc-data-table__cell">
-                        <div class="mdc-text-field mdc-text-field--filled">
-                            <span class="mdc-text-field__ripple"></span>
-                            <input class="mdc-text-field__input" type="text" name="calendar_name" required>
-                            <span class="mdc-line-ripple"></span>
-                        </div>
-                    </td>
-                    <td class="mdc-data-table__cell">
-                      <div class="color-picker-container">
-                            <!-- Hidden input to store the selected color -->
-                            <input type="hidden" name="color" value="#000000" class="color-input">
-                            ${Object.entries(allowedColors).map(([color_code, color_name]) => `
-                                <input type="radio" id="newCal${calendarCount}${color_code}" name="newCal${calendarCount}color_radio" value="${color_code}" class="color-radio" ${color_code === "#000000" ? "checked" : ""}>
-                                <label for="newCal${calendarCount}${color_code}" class="color-option" style="background-color: ${color_code};" title="${color_name}"></label>
-                            `).join('')}
-                      </div>
-                    </td>
-                     <td class="mdc-data-table__cell">
-                      <i class="material-icons remove-button" onclick="removeCalendarRow(this)">remove_circle</i>
-                     </td>
-                </tr>
-            `;
-            $('#calendar-table-body').append(newRow);
-
-            //Reinit listeners
-            $('.color-option').click(function () {
-                // Remove selected class from all options in the same container
-                $(this).closest('.color-picker-container').find('.color-option').removeClass('selected');
-                // Add selected class to the clicked option
-                $(this).addClass('selected');
-
-                // Get the color value from the clicked option
-                var selectedColor = $(this).prev('.color-radio').val();
-                // Update the hidden input field with the selected color
-                $(this).closest('.color-picker-container').find('.color-input').val(selectedColor);
-
-                $(this).prev('.color-radio').prop('checked', true);
-            });
-
-             // Initialize all text fields.
-            const textField = document.querySelectorAll('.mdc-text-field');
-            for (const elem of textField) {
-                mdc.textField.MDCTextField.attachTo(elem);
-            }
-        }
-
-        function removeCalendarRow(button) {
-            const row = $(button).closest('.mdc-data-table__row');
-            row.remove();
-        }
-    </script>
+    <a href="/generateImage">Generate Calendar Image</a>
+    <a href="/showImage">Show Calendar</a>
 </body>
 </html>

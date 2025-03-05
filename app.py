@@ -29,8 +29,17 @@ ALLOWED_COLORS = {
 calendars = [
     {"ical_url": "https://calendar.google.com/calendar/ical/lbf3a8tonfgglvmckjpfs136io%40group.calendar.google.com/private-9d7484dfa0783eac0a7857d93fc90470/basic.ics", "calendar_name": "Example Name", "color": "#00FF00"},
 ]
-update_frequency = DEFAULT_UPDATE_FREQUENCY
-should_dither = False
+
+#Default Settings
+settings = {
+    "update_frequency": DEFAULT_UPDATE_FREQUENCY,
+    "days_to_show": 5,
+    "event_text_size": 14,
+    "title_text_size": 18,
+    "grid_color": "#000000",
+    "legend_color": "#000000",
+    "should_dither": False,
+}
 
 # Global variables
 trigger_generate_image = False
@@ -69,7 +78,7 @@ def index():
     """
     Handles the main index page, allowing users to add calendars and set the update frequency.
     """
-    global calendars, update_frequency
+    global calendars, settings
     if request.method == "POST":
         calendars.clear()  # Clear the existing list
         for i in range(len(request.form.getlist("ical_url"))):
@@ -79,12 +88,18 @@ def index():
                 "color": request.form.getlist("color")[i],
             }
             calendars.append(calendar)
-        update_frequency = int(request.form["update_frequency"])
+        
+        settings["update_frequency"] = int(request.form["update_frequency"])
+        settings["days_to_show"] = int(request.form["days_to_show"])
+        settings["event_text_size"] = int(request.form["event_text_size"])
+        settings["title_text_size"] = int(request.form["title_text_size"])
+        settings["grid_color"] = request.form["grid_color"]
+        settings["legend_color"] = request.form["legend_color"]
 
         print(f"Calendars: {calendars}")
-        print(f"Update frequency: {update_frequency}")
+        print(f"Settings: {settings}")
 
-    return render_template("index.html", calendars=calendars, update_frequency=update_frequency, allowed_colors=ALLOWED_COLORS)
+    return render_template("index.html", calendars=calendars, settings=settings, allowed_colors=ALLOWED_COLORS)
 
 @app.route("/showImage", methods=["GET"])
 def showImage():
@@ -123,18 +138,19 @@ def showImage():
 
 @app.route("/generateImage", methods=["GET"])
 def generateImage():
+    global settings
     resolution = DEFAULT_RESOLUTION
     try:
         image = generate_calendar_image(
             resolution=resolution,
             calendars=calendars,
-            days_to_show=5,
+            days_to_show=settings["days_to_show"],
             event_card_radius=10,
-            event_text_size=14,
-            title_text_size=18,
-            grid_color="#000000",
+            event_text_size=settings["event_text_size"],
+            title_text_size=settings["title_text_size"],
+            grid_color=settings["grid_color"],
             event_text_color="#ffffff",
-            legend_color="#000000",
+            legend_color=settings["legend_color"],
         )
     except Exception as e:
         print(f"Error generating calendar image: {e}")
@@ -146,7 +162,7 @@ def generateImage():
 
     # Save the image
     try:
-        if (should_dither):
+        if (settings["should_dither"]):
             image = apply_floyd_steinberg_dithering(image)
 
         imagePath = os.path.join("static", CALENDAR_IMAGE_FILENAME)
