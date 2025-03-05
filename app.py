@@ -128,8 +128,6 @@ def generateImage():
         image = generate_calendar_image(
             resolution=resolution,
             calendars=calendars,
-            start_time=8,
-            end_time=22,
             days_to_show=5,
             event_card_radius=10,
             event_text_size=14,
