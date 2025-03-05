@@ -3,91 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <title>Inky Calendar Settings</title>
+    <!-- Material Design Lite (MDL) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-light_blue.min.css" />
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Roboto', sans-serif;
+            background-color: #303030; /* Dark background */
+            color: #eee; /* Light text */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        .calendar-entry {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        .calendar-entry label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .calendar-entry input[type="text"],
-        .calendar-entry input[type="color"] {
+
+        .mdl-card {
+            background-color: #424242; /* Dark card background */
+            color: #eee;
             width: 100%;
-            padding: 5px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
+            margin-bottom: 20px;
         }
-        .calendar-entry select {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
+
+        .mdl-card__title {
+            color: #eee;
         }
+        
+        .mdl-card__supporting-text {
+            color: #eee;
+        }
+
+        .mdl-textfield__label {
+            color: #eee; /* Light labels */
+        }
+
+        .mdl-textfield__input {
+            color: #eee; /* Light input text */
+        }
+
+        .mdl-textfield.is-focused .mdl-textfield__label {
+            color: #80d8ff; /* Light blue on focus */
+        }
+        .mdl-textfield.is-focused .mdl-textfield__input {
+            border-bottom: 2px solid #80d8ff;
+        }
+
+        .mdl-textfield.is-invalid .mdl-textfield__input {
+            border-color: #ff6e40;
+        }
+        .mdl-textfield.is-invalid .mdl-textfield__label {
+            color: #ff6e40;
+        }
+
+        .mdl-button--primary {
+            background-color: #80d8ff; /* Light blue accent */
+            color: #212121; /* Dark button text */
+        }
+        .page-content {
+          padding: 16px;
+        }
+        .mdl-layout__header {
+            background-color: #212121;
+        }
+        #add-calendar{
+          margin-top:10px;
+          margin-bottom:10px;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Inky Calendar Settings</h1>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">Inky Calendar Settings</span>
+          <!-- Add spacer, to align navigation to the right -->
+          <div class="mdl-layout-spacer"></div>
+        </div>
+      </header>
+      <main class="mdl-layout__content">
+            <div class="page-content">
+            <form method="post">
+                <div id="calendar-entries">
+                    <h2>Calendars</h2>
+                    {% for calendar in calendars %}
+                    <div class="mdl-card mdl-shadow--2dp calendar-entry">
+                        <div class="mdl-card__title">
+                            <h4 class="mdl-card__title-text">Calendar {{ loop.index }}</h4>
+                        </div>
+                        <div class="mdl-card__supporting-text">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" id="ical_url_{{ loop.index0 }}" name="ical_url" value="{{ calendar.ical_url }}" required>
+                                <label class="mdl-textfield__label" for="ical_url_{{ loop.index0 }}">iCal URL</label>
+                            </div>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" id="calendar_name_{{ loop.index0 }}" name="calendar_name" value="{{ calendar.calendar_name }}" required>
+                                <label class="mdl-textfield__label" for="calendar_name_{{ loop.index0 }}">Calendar Name</label>
+                            </div>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <select class="mdl-textfield__input" id="color_{{ loop.index0 }}" name="color">
+                                    {% for color_hex, color_name in allowed_colors.items() %}
+                                        <option value="{{ color_hex }}" {% if calendar.color == color_hex %}selected{% endif %}>{{ color_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label class="mdl-textfield__label" for="color_{{ loop.index0 }}">Calendar Color</label>
+                            </div>
+                            {% if not loop.first %}
+                            <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" onclick="removeCalendar(this)">
+                                <i class="material-icons">delete</i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
 
-    <form method="post">
-        <h2>Calendars</h2>
-        {% for calendar in calendars %}
-        <div class="calendar-entry">
-            <label for="ical_url_{{ loop.index0 }}">iCal URL:</label>
-            <input type="text" id="ical_url_{{ loop.index0 }}" name="ical_url" value="{{ calendar.ical_url }}" required>
-            <label for="calendar_name_{{ loop.index0 }}">Calendar Name:</label>
-            <input type="text" id="calendar_name_{{ loop.index0 }}" name="calendar_name" value="{{ calendar.calendar_name }}" required>
-            <label for="color_{{ loop.index0 }}">Calendar Color:</label>
-            <select id="color_{{ loop.index0 }}" name="color">
-                {% for color_hex, color_name in allowed_colors.items() %}
-                    <option value="{{ color_hex }}" {% if calendar.color == color_hex %}selected{% endif %}>{{ color_name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        {% endfor %}
+                <button id="add-calendar" type="button" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+                    <i class="material-icons">add</i>
+                </button>
 
-        <h2>Display Settings</h2>
-        <div>
-            <label for="update_frequency">Update Frequency (minutes):</label>
-            <input type="number" id="update_frequency" name="update_frequency" value="{{ settings.update_frequency }}" min="1" required>
-        </div>
-        <div>
-            <label for="days_to_show">Days to Show:</label>
-            <input type="number" id="days_to_show" name="days_to_show" value="{{ settings.days_to_show }}" min="1" required>
-        </div>
-        <div>
-            <label for="event_text_size">Event Text Size:</label>
-            <input type="number" id="event_text_size" name="event_text_size" value="{{ settings.event_text_size }}" min="1" required>
-        </div>
-        <div>
-            <label for="title_text_size">Title Text Size:</label>
-            <input type="number" id="title_text_size" name="title_text_size" value="{{ settings.title_text_size }}" min="1" required>
-        </div>
-        <div>
-            <label for="grid_color">Grid Color:</label>
-            <select id="grid_color" name="grid_color">
-                {% for color_hex, color_name in allowed_colors.items() %}
-                    <option value="{{ color_hex }}" {% if settings.grid_color == color_hex %}selected{% endif %}>{{ color_name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div>
-            <label for="legend_color">Legend Color:</label>
-             <select id="legend_color" name="legend_color">
-                {% for color_hex, color_name in allowed_colors.items() %}
-                    <option value="{{ color_hex }}" {% if settings.legend_color == color_hex %}selected{% endif %}>{{ color_name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit">Save Settings</button>
-    </form>
+                <h2>Display Settings</h2>
+                <div class="mdl-card mdl-shadow--2dp">
+                    <div class="mdl-card__supporting-text">
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="number" id="update_frequency" name="update_frequency" value="{{ settings.update_frequency }}" min="1" required>
+                            <label class="mdl-textfield__label" for="update_frequency">Update Frequency (minutes)</label>
+                        </div>
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="number" id="days_to_show" name="days_to_show" value="{{ settings.days_to_show }}" min="1" required>
+                            <label class="mdl-textfield__label" for="days_to_show">Days to Show</label>
+                        </div>
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="number" id="event_text_size" name="event_text_size" value="{{ settings.event_text_size }}" min="1" required>
+                            <label class="mdl-textfield__label" for="event_text_size">Event Text Size</label>
+                        </div>
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="number" id="title_text_size" name="title_text_size" value="{{ settings.title_text_size }}" min="1" required>
+                            <label class="mdl-textfield__label" for="title_text_size">Title Text Size</label>
+                        </div>
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <select class="mdl-textfield__input" id="grid_color" name="grid_color">
+                                {% for color_hex, color_name in allowed_colors.items() %}
+                                    <option value="{{ color_hex }}" {% if settings.grid_color == color_hex %}selected{% endif %}>{{ color_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="mdl-textfield__label" for="grid_color">Grid Color</label>
+                        </div>
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <select class="mdl-textfield__input" id="legend_color" name="legend_color">
+                                {% for color_hex, color_name in allowed_colors.items() %}
+                                    <option value="{{ color_hex }}" {% if settings.legend_color == color_hex %}selected{% endif %}>{{ color_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="mdl-textfield__label" for="legend_color">Legend Color</label>
+                        </div>
+                    </div>
+                </div>
 
-    <a href="/generateImage">Generate Calendar Image</a>
-    <a href="/showImage">Show Calendar</a>
+                <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+                    Save Settings
+                </button>
+            </form>
+
+            <a href="/generateImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Generate Calendar Image</a>
+            <a href="/showImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Show Calendar</a>
+        </div>
+      </main>
+    </div>
+
+    <script>
+        document.getElementById('add-calendar').addEventListener('click', function() {
+            const container = document.getElementById('calendar-entries');
+            const index = container.querySelectorAll('.calendar-entry').length;
+            const newCalendarEntry = `
+            <div class="mdl-card mdl-shadow--2dp calendar-entry">
+                <div class="mdl-card__title">
+                    <h4 class="mdl-card__title-text">Calendar ${index + 1}</h4>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="ical_url_${index}" name="ical_url" required>
+                        <label class="mdl-textfield__label" for="ical_url_${index}">iCal URL</label>
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="calendar_name_${index}" name="calendar_name" required>
+                        <label class="mdl-textfield__label" for="calendar_name_${index}">Calendar Name</label>
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <select class="mdl-textfield__input" id="color_${index}" name="color">
+                            {% for color_hex, color_name in allowed_colors.items() %}
+                                <option value="{{ color_hex }}">{{ color_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label class="mdl-textfield__label" for="color_${index}">Calendar Color</label>
+                    </div>
+                   <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" onclick="removeCalendar(this)">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </div>
+            </div>
+            `;
+            container.insertAdjacentHTML('beforeend', newCalendarEntry);
+            componentHandler.upgradeDom(); // Upgrade the DOM to apply MDL classes to new elements.
+        });
+
+        function removeCalendar(button) {
+            const calendarEntry = button.closest('.calendar-entry');
+            calendarEntry.remove();
+        }
+    </script>
 </body>
 </html>
