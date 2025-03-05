@@ -104,9 +104,9 @@
       grid-template-columns: 1fr auto;
       grid-gap: 16px;
     }
-    
-     /* New styles for two settings per row */
-     .display-settings-grid {
+
+    /* New styles for two settings per row */
+    .display-settings-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       /* Two columns */
@@ -145,57 +145,53 @@
           <h2>Display Settings</h2>
           <div class="card mdl-card mdl-shadow--2dp">
             <div class="card-content mdl-card__supporting-text display-settings-grid">
-               <div class="calendar-row">
-                  <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="text-input mdl-textfield__input" type="number" id="update_frequency" name="update_frequency"
-                      value="{{ settings.update_frequency }}" min="1" required>
-                    <label class="text-label mdl-textfield__label" for="update_frequency">Update Frequency (minutes)</label>
-                  </div>
-                  <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="text-input mdl-textfield__input" type="number" id="days_to_show" name="days_to_show"
-                      value="{{ settings.days_to_show }}" min="1" required>
-                    <label class="text-label mdl-textfield__label" for="days_to_show">Days to Show</label>
-                  </div>
-               </div>
-               <div class="calendar-row">
-                  <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="text-input mdl-textfield__input" type="number" id="event_text_size" name="event_text_size"
-                      value="{{ settings.event_text_size }}" min="1" required>
-                    <label class="text-label mdl-textfield__label" for="event_text_size">Event Text Size</label>
-                  </div>
-                  <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="text-input mdl-textfield__input" type="number" id="title_text_size" name="title_text_size"
-                      value="{{ settings.title_text_size }}" min="1" required>
-                    <label class="text-label mdl-textfield__label" for="title_text_size">Title Text Size</label>
-                  </div>
-               </div>
-               <div class="calendar-row">
+              <div class="calendar-row">
                 <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <select class="text-input mdl-textfield__input" id="grid_color" name="grid_color">
-                      {% for color_hex, color_name in allowed_colors.items() %}
-                      <option value="{{ color_hex }}" {% if settings.grid_color==color_hex %}selected{% endif %}>{{
-                        color_name }}</option>
-                      {% endfor %}
-                    </select>
-                    <label class="text-label mdl-textfield__label" for="grid_color">Grid Color</label>
-                  </div>
-                   <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <select class="text-input mdl-textfield__input" id="legend_color" name="legend_color">
-                      {% for color_hex, color_name in allowed_colors.items() %}
-                      <option value="{{ color_hex }}" {% if settings.legend_color==color_hex %}selected{% endif %}>{{
-                        color_name }}</option>
-                      {% endfor %}
-                    </select>
-                    <label class="text-label mdl-textfield__label" for="legend_color">Legend Color</label>
-                  </div>
-               </div>
+                  <input class="text-input mdl-textfield__input" type="number" id="update_frequency"
+                    name="update_frequency" value="{{ settings.update_frequency }}" min="1" required>
+                  <label class="text-label mdl-textfield__label" for="update_frequency">Update Frequency
+                    (minutes)</label>
+                </div>
+                <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <input class="text-input mdl-textfield__input" type="number" id="days_to_show" name="days_to_show"
+                    value="{{ settings.days_to_show }}" min="1" required>
+                  <label class="text-label mdl-textfield__label" for="days_to_show">Days to Show</label>
+                </div>
+              </div>
+              <div class="calendar-row">
+                <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <input class="text-input mdl-textfield__input" type="number" id="event_text_size"
+                    name="event_text_size" value="{{ settings.event_text_size }}" min="1" required>
+                  <label class="text-label mdl-textfield__label" for="event_text_size">Event Text Size</label>
+                </div>
+                <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <input class="text-input mdl-textfield__input" type="number" id="title_text_size"
+                    name="title_text_size" value="{{ settings.title_text_size }}" min="1" required>
+                  <label class="text-label mdl-textfield__label" for="title_text_size">Title Text Size</label>
+                </div>
+              </div>
+              <div class="calendar-row">
+                <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <select class="text-input mdl-textfield__input" id="grid_color" name="grid_color">
+                    {% for color_hex, color_name in allowed_colors.items() %}
+                    <option value="{{ color_hex }}" {% if settings.grid_color==color_hex %}selected{% endif %}>{{
+                      color_name }}</option>
+                    {% endfor %}
+                  </select>
+                  <label class="text-label mdl-textfield__label" for="grid_color">Grid Color</label>
+                </div>
+                <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <select class="text-input mdl-textfield__input" id="legend_color" name="legend_color">
+                    {% for color_hex, color_name in allowed_colors.items() %}
+                    <option value="{{ color_hex }}" {% if settings.legend_color==color_hex %}selected{% endif %}>{{
+                      color_name }}</option>
+                    {% endfor %}
+                  </select>
+                  <label class="text-label mdl-textfield__label" for="legend_color">Legend Color</label>
+                </div>
+              </div>
             </div>
           </div>
-
-          <button type="submit"
-            class="primary-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
-            Save Settings
-          </button>
 
           <div id="calendar-entries">
             <h2>Calendars</h2>
@@ -210,8 +206,8 @@
                 </div>
                 <div class="calendar-row">
                   <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="text-input mdl-textfield__input" type="text" id="ical_url_{{ loop.index0 }}" name="ical_url"
-                      value="{{ calendar.ical_url }}" required>
+                    <input class="text-input mdl-textfield__input" type="text" id="ical_url_{{ loop.index0 }}"
+                      name="ical_url" value="{{ calendar.ical_url }}" required>
                     <label class="text-label mdl-textfield__label" for="ical_url_{{ loop.index0 }}">iCal URL</label>
                   </div>
                   <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -243,9 +239,17 @@
           </button>
         </form>
 
-        <a href="/generateImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Generate
-          Calendar Image</a>
-        <a href="/showImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Show Calendar</a>
+        <div>
+          <button type="submit"
+            class="primary-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+            Save Settings
+          </button>
+
+          <a href="/generateImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Generate
+            Calendar Image</a>
+          <a href="/showImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Show
+            Calendar</a>
+        </div>
       </div>
     </main>
   </div>
