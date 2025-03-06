@@ -125,6 +125,7 @@ def showImage():
             
             return render_template(
                 "calendar.html",
+                settings=settings,
                 image_filename=CALENDAR_IMAGE_FILENAME,
                 image_width=image_width,
                 image_height=image_height,
@@ -138,8 +139,6 @@ def showImage():
         print(f"Calendar image or header file not found.")
         return "Calendar image or header file not found. Please generate the image first.", 404
     
-    return render_template("calendar.html", image=image, settings=settings,  buf=buffer)
-
 @app.route("/generateImage", methods=["GET"])
 def generateImage():
     global settings
