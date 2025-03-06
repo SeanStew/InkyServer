@@ -167,7 +167,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
 
         # --- Grid Setup ---
         grid_start_x = 55  # Left margin for time labels
-        grid_start_y = 60  # Top margin for date labels
+        grid_start_y = 20  # Top margin for date labels
         grid_width = resolution[0] - grid_start_x - 10  # Adjust for right margin
         grid_height = resolution[1] - grid_start_y - 10  # Adjust for bottom margin
         cell_width = grid_width / days_to_show  # days a week
@@ -191,7 +191,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
             day = todayDate + timedelta(days=i)
             day_str = day.strftime("%a %d")  # Format: "Mon 11"
             x_pos = grid_start_x + i * cell_width + cell_width / 2 - titleFont.getlength(day_str) / 2
-            draw.text((x_pos, grid_start_y - 40), day_str, font=titleFont, fill=legend_color)
+            draw.text((x_pos, grid_start_y - 0), day_str, font=titleFont, fill=legend_color)
 
         # --- Time Labels ---
         for i in range((end_time - start_time + 1)): # hours to display
