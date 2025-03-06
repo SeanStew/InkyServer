@@ -39,6 +39,8 @@ settings = {
     "grid_color": "#000000",
     "legend_color": "#000000",
     "should_dither": False,
+    "active_start_time": "08:00",
+    "active_end_time": "20:00",
 }
 
 # Global variables
@@ -206,15 +208,23 @@ def wakeup_interval():
     now = datetime.now()
     current_time = now.time()
 
-    # Define time boundaries
-    morning_time = time(8, 0)  # 8 AM
-    evening_time = time(20, 0)  # 8 PM
+    active_start_time_str = settings["active_start_time"]
+    active_end_time_str = settings["active_end_time"]
+    update_frequency = settings["update_frequency"]
 
-    if True: # morning_time <= current_time < evening_time:
-        interval = 3600  # 1 hour in seconds
+    try:
+        active_start_time = time.fromisoformat(active_start_time_str)
+        active_end_time = time.fromisoformat(active_end_time_str)
+    except ValueError:
+        print(f"Invalid time format for active_start_time or active_end_time. Using defaults.")
+        active_start_time = time(8,0)
+        active_end_time = time(20,0)
+
+    if active_start_time <= current_time < active_end_time:
+        interval = update_frequency * 60
     else:
         # Calculate seconds until the next 8 AM
-        next_morning = datetime.combine(now.date() + timedelta(days=1), morning_time)
+        next_morning = datetime.combine(now.date() + timedelta(days=1), active_start_time)
         interval = int((next_morning - now).total_seconds())
     
     # Set the trigger flag to True and calculate the trigger time 30 minutes from now

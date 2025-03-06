@@ -170,6 +170,18 @@
               </div>
               <div class="calendar-row">
                 <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <input class="text-input mdl-textfield__input" type="time" id="active_start_time"
+                    name="active_start_time" value="{{ settings.active_start_time }}" required>
+                  <label class="text-label mdl-textfield__label" for="active_start_time">Active Start Time</label>
+                </div>
+                <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                  <input class="text-input mdl-textfield__input" type="time" id="active_end_time"
+                    name="active_end_time" value="{{ settings.active_end_time }}" required>
+                  <label class="text-label mdl-textfield__label" for="active_end_time">Active End Time</label>
+                </div>
+              </div>
+              <div class="calendar-row">
+                <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                   <input class="text-input mdl-textfield__input" type="number" id="event_text_size"
                     name="event_text_size" value="{{ settings.event_text_size }}" min="1" required>
                   <label class="text-label mdl-textfield__label" for="event_text_size">Event Text Size</label>
