@@ -191,7 +191,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
             day = todayDate + timedelta(days=i)
             day_str = day.strftime("%a %d")  # Format: "Mon 11"
             x_pos = grid_start_x + i * cell_width + cell_width / 2 - titleFont.getlength(day_str) / 2
-            draw.text((x_pos, grid_start_y - 10), day_str, font=titleFont, fill=legend_color)
+            draw.text((x_pos, grid_start_y - 20), day_str, font=titleFont, fill=legend_color)
 
         # --- Time Labels ---
         for i in range((end_time - start_time + 1)): # hours to display
