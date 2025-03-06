@@ -41,6 +41,9 @@ settings = {
     "should_dither": False,
     "active_start_time": "08:00",
     "active_end_time": "20:00",
+    "last_sync": "",
+    "next_update": "",
+    "next_sync": ""
 }
 
 # Global variables
@@ -62,10 +65,6 @@ def generate_image_task():
                 print("generateImage() task completed.")
                 trigger_generate_image = False
                 generate_image_trigger_time = None  # Reset the trigger time
-        else:
-            print(f"generateImage() task will run later at {generate_image_trigger_time}")
-    else:
-        print("generateImage() task not triggered.")
 
 def scheduled_task():
     """
@@ -233,7 +232,13 @@ def wakeup_interval():
     if (duration_to_wait < 0):
         duration_to_wait = 600
     generate_image_trigger_time = now + timedelta(seconds=duration_to_wait)
+    nextSync = now + timedelta(seconds=interval)
+
     print(f"generateImage() will be triggered at {generate_image_trigger_time}")
+
+    settings["last_sync"] = now.strftime("%Y-%m-%d %H:%M:%S")
+    settings["next_sync"] = nextSync.strftime("%Y-%m-%d %H:%M:%S")
+    settings["next_update"] = generate_image_trigger_time.strftime("%Y-%m-%d %H:%M:%S")
 
     return jsonify(interval=interval)
 

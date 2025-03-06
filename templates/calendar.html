@@ -29,6 +29,9 @@
             <h2>Calendar Image</h2>
             <img id="calendar-image" src="{{ url_for('static', filename=image_filename) }}" alt="Calendar Image" width="{{ image_width }}" height="{{ image_height }}">
             <p>Width: {{ image_width }}px, Height: {{ image_height }}px</p>
+            <p>Last update was at: {{ settings.last_sync }}</p>
+            <p>Next update at: {{ settings.next_update }}</p>
+            <p>Next sync at: {{ settings.next_sync }}</p>
         </div>
         {% endif %}
 
