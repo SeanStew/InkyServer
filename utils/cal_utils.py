@@ -207,7 +207,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
             else:
                 hour_str = f"{hour - 12}pm"
 
-            y_pos = grid_start_y + (i * cell_height) - title_text_size / 2  # Align with horizontal line
+            y_pos = grid_start_y + (i * cell_height) - cell_height / 2  # Align with horizontal line
             draw.text((grid_start_x - 50, y_pos), hour_str, font=titleFont, fill=legend_color)
 
         # --- Draw Events ---
