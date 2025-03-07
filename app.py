@@ -6,7 +6,7 @@ import threading
 import time as time_module
 
 from utils.cal_utils import generate_calendar_image
-from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering, generate_photo
+from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering
 
 app = Flask(__name__)
 
@@ -195,10 +195,6 @@ def generatePhoto():
     global photo
     if 'photo' in request.files:
         photo = Image.open(request.files['photo'])
-        image = generate_photo(
-            resolution=resolution,
-            image=photo
-        )
 
     if photo is not None:
         # Resize and adjust orientation
