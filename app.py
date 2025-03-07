@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify, redirect, url_for
 import os
 from datetime import datetime, time, timedelta
 from PIL import Image
@@ -6,13 +6,13 @@ import threading
 import time as time_module
 
 from utils.cal_utils import generate_calendar_image
-from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering
+from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering, generate_photo
 
 app = Flask(__name__)
 
 # Constants
 DEFAULT_UPDATE_FREQUENCY = 60
-CALENDAR_IMAGE_FILENAME = "calendar.png"
+IMAGE_FILENAME = "calendar.png"
 HEADER_FILENAME = "calendar.h"
 DEFAULT_RESOLUTION = (800, 480)
 
@@ -31,6 +31,7 @@ calendars = [
 ]
 
 #Default Settings
+photo = None
 settings = {
     "update_frequency": DEFAULT_UPDATE_FREQUENCY,
     "days_to_show": 5,
@@ -38,7 +39,7 @@ settings = {
     "title_text_size": 18,
     "grid_color": "#000000",
     "legend_color": "#000000",
-    "should_dither": False,
+    "should_dither": True,
     "active_start_time": "08:00",
     "active_end_time": "20:00",
     "last_sync": "",
@@ -109,7 +110,7 @@ def showImage():
     """
     global settings
     
-    image_path = os.path.join("static", CALENDAR_IMAGE_FILENAME)
+    image_path = os.path.join("static", IMAGE_FILENAME)
     header_file_path = os.path.join("static", HEADER_FILENAME)
 
     if os.path.exists(image_path) and os.path.exists(header_file_path):
@@ -126,7 +127,7 @@ def showImage():
             return render_template(
                 "calendar.html",
                 settings=settings,
-                image_filename=CALENDAR_IMAGE_FILENAME,
+                image_filename=IMAGE_FILENAME,
                 image_width=image_width,
                 image_height=image_height,
                 header_content=header_content,
@@ -138,7 +139,7 @@ def showImage():
     else:
         print(f"Calendar image or header file not found.")
         return "Calendar image or header file not found. Please generate the image first.", 404
-    
+
 @app.route("/generateImage", methods=["GET"])
 def generateImage():
     global settings
@@ -165,10 +166,7 @@ def generateImage():
 
     # Save the image
     try:
-        if (settings["should_dither"]):
-            image = apply_floyd_steinberg_dithering(image)
-
-        imagePath = os.path.join("static", CALENDAR_IMAGE_FILENAME)
+        imagePath = os.path.join("static", IMAGE_FILENAME)
         image.save(imagePath)
     except Exception as e:
         print(f"Error generating or saving 7-color image: {e}")
@@ -185,6 +183,46 @@ def generateImage():
     except Exception as e:
         print(f"Error sending file: {e}")
         return f"Error sending file: {e}", 500
+
+@app.route("/generatePhoto", methods=["GET"])
+def getGeneratePhoto():
+    return redirect(url_for('index'))
+
+@app.route("/generatePhoto", methods=["POST"])
+def generatePhoto():
+    global settings
+    resolution = DEFAULT_RESOLUTION
+    global photo
+    if 'photo' in request.files:
+        photo = Image.open(request.files['photo'])
+        image = generate_photo(
+            resolution=resolution,
+            image=photo
+        )
+
+    if photo is not None:
+        # Resize and adjust orientation
+        image = change_orientation(photo, "horizontal")
+        image = resize_image(image, resolution)
+
+        # Save the image
+        try:
+            if (settings["should_dither"]):
+                image = apply_floyd_steinberg_dithering(image)
+
+            imagePath = os.path.join("static", IMAGE_FILENAME)
+            image.save(imagePath)
+        except Exception as e:
+            print(f"Error generating or saving 7-color image: {e}")
+            return f"Error generating or saving 7-color image: {e}", 500
+
+        try:
+            header_file = convert_image_to_header(image, os.path.join("static", HEADER_FILENAME))
+        except Exception as e:
+            print(f"Error getting buffer: {e}")
+            return f"Error getting buffer: {e}", 500
+        
+        return jsonify(status="done", file=header_file)
     
 @app.route("/getImage", methods=["GET"])
 def getImage():

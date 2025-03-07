@@ -3,47 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar Image</title>
+    <title>Inky View</title>
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1 0 auto;
+            padding: 20px;
+        }
+
         #image-container {
             display: flex;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
             gap: 20px;
+            justify-content: center; /* Center items horizontally */
+            margin-bottom: 20px; /* Add some space below the image */
         }
+
         #calendar-image {
-            border: 1px solid black;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
+            max-width: 100%; /* Make sure the image is responsive */
+            height: auto;
         }
+
         #header-content-container {
             flex-grow: 1;
-            border: 1px solid gray;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
             overflow-wrap: break-word; /* Enable word wrapping */
             white-space: pre-wrap; /* Preserve line breaks and whitespace */
+            padding: 20px;
+            background-color: #fafafa;
+            max-width: 100%;
+        }
+
+        .card .card-content p {
+            margin: 0;
+        }
+        
+        .page-footer {
+            padding-top: 0px;
         }
     </style>
 </head>
 <body>
-    <h1>Calendar Image and Header Content</h1>
+    <header>
+        <nav class="nav-extended grey darken-3">
+            <div class="nav-wrapper">
+                <a href="#!" class="brand-logo">Inky View</a>
+            </div>
+            <div class="nav-content">
+                 <span class="nav-title">Calendar Information</span>
+            </div>
+        </nav>
+    </header>
 
-    <div id="image-container">
-        {% if image_filename %}
-        <div>
-            <h2>Calendar Image</h2>
-            <img id="calendar-image" src="{{ url_for('static', filename=image_filename) }}" alt="Calendar Image" width="{{ image_width }}" height="{{ image_height }}">
-            <p>Width: {{ image_width }}px, Height: {{ image_height }}px</p>
-            <p>Last update was at: {{ settings.last_sync }}</p>
-            <p>Next update at: {{ settings.next_update }}</p>
-            <p>Next sync at: {{ settings.next_sync }}</p>
-        </div>
-        {% endif %}
-
-        {% if header_content %}
-        <div>
-            <h2>Header Content</h2>
-            <p>Total bytes in file: {{ header_byte_count }}</p>
-            <div id="header-content-container">
-                {{ header_content }}
+    <main>
+        <div class="container">
+            <div id="image-container">
+                {% if image_filename %}
+                <div class="card">
+                    <div class="card-image">
+                        <img id="calendar-image" src="{{ url_for('static', filename=image_filename) }}" alt="Calendar Image" width="{{ image_width }}" height="{{ image_height }}">
+                        <span class="card-title">Calendar Image</span>
+                    </div>
+                    <div class="card-content">
+                        <p><i class="material-icons">aspect_ratio</i> Width: {{ image_width }}px, Height: {{ image_height }}px</p>
+                        <p><i class="material-icons">update</i> Last update was at: {{ settings.last_sync }}</p>
+                        <p><i class="material-icons">schedule</i> Next update at: {{ settings.next_update }}</p>
+                        <p><i class="material-icons">sync</i> Next sync at: {{ settings.next_sync }}</p>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
-        {% endif %}
-    </div>
+    </main>
+
+    <footer class="page-footer grey darken-3">
+        <div class="footer-copyright">
+            <div class="container">
+                © {{ now.year }} Inky Server
+                
+            </div>
+        </div>
+    </footer>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems, {
+                edge: "left",
+                draggable: true
+            });
+        });
+    </script>
 </body>
 </html>

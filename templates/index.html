@@ -128,13 +128,14 @@
     }
 
     .button-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px; 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
-    .button-group button, .button-group a {
-        margin-top: 10px;
+    .button-group button,
+    .button-group a {
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -175,8 +176,8 @@
                   <label class="text-label mdl-textfield__label" for="active_start_time">Active Start Time</label>
                 </div>
                 <div class="text-field mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <input class="text-input mdl-textfield__input" type="time" id="active_end_time"
-                    name="active_end_time" value="{{ settings.active_end_time }}" required>
+                  <input class="text-input mdl-textfield__input" type="time" id="active_end_time" name="active_end_time"
+                    value="{{ settings.active_end_time }}" required>
                   <label class="text-label mdl-textfield__label" for="active_end_time">Active End Time</label>
                 </div>
               </div>
@@ -265,11 +266,18 @@
               class="primary-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
               Save Settings
             </button>
-  
+
             <a href="/generateImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Generate
               Calendar Image</a>
-            <a href="/showImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Show
-              Calendar</a>
+            <div class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+              <input type="file" id="photoInput" style="display:none" accept="image/*" />
+              <label for="photoInput" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+                <i class="material-icons">file_upload</i> Upload Photo
+              </label>
+              <button id="generatePhotoButton" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                disabled>Generate Photo</button>
+            </div>
+            <a href="/showImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">View Image</a>
           </div>
         </form>
       </div>
@@ -317,6 +325,39 @@
       const calendarEntry = button.closest('.calendar-entry');
       calendarEntry.remove();
     }
+
+    // Photo Upload and Generation Logic
+    const photoInput = document.getElementById('photoInput');
+    const generatePhotoButton = document.getElementById('generatePhotoButton');
+
+    photoInput.addEventListener('change', function () {
+      if (photoInput.files.length > 0) {
+        generatePhotoButton.disabled = false;
+      } else {
+        generatePhotoButton.disabled = true;
+      }
+    });
+
+    generatePhotoButton.addEventListener('click', function () {
+      if (photoInput.files.length > 0) {
+        const file = photoInput.files[0];
+        const formData = new FormData();
+        formData.append('photo', file);
+
+        fetch('/generatePhoto', {
+          method: 'POST',
+          body: formData
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Success:', data);
+            alert("Photo Generated Successfully")
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      }
+    });
   </script>
 </body>
 
