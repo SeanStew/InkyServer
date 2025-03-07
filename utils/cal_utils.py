@@ -167,7 +167,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
 
         # --- Grid Setup ---
         grid_start_x = 55  # Left margin for time labels
-        grid_start_y = 0  # Top margin for date labels
+        grid_start_y = 20  # Top margin for date labels
         grid_width = resolution[0] - grid_start_x - 10  # Adjust for right margin
         grid_height = resolution[1] - grid_start_y - 10  # Adjust for bottom margin
         cell_width = grid_width / days_to_show  # days a week
