@@ -167,7 +167,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
 
         # --- Grid Setup ---
         grid_start_x = 55  # Left margin for time labels
-        grid_start_y = 30  # Top margin for date labels
+        grid_start_y = 0  # Top margin for date labels
         grid_width = resolution[0] - grid_start_x - 10  # Adjust for right margin
         grid_height = resolution[1] - grid_start_y - 10  # Adjust for bottom margin
         cell_width = grid_width / days_to_show  # days a week
@@ -195,6 +195,9 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
 
         # --- Time Labels ---
         for i in range((end_time - start_time + 1)): # hours to display
+            if i == 0:
+                continue # skip the first hour label
+
             hour = start_time + i 
             
             if hour < 12:
@@ -204,7 +207,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
             else:
                 hour_str = f"{hour - 12}pm"
 
-            y_pos = grid_start_y + i * cell_height  # Align with horizontal line
+            y_pos = grid_start_y + (i * cell_height) - title_text_size / 2  # Align with horizontal line
             draw.text((grid_start_x - 50, y_pos), hour_str, font=titleFont, fill=legend_color)
 
         # --- Draw Events ---
