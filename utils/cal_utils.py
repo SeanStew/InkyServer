@@ -194,6 +194,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
             draw.text((x_pos, grid_start_y - 20), day_str, font=titleFont, fill=legend_color)
 
         # --- Time Labels ---
+        time_label_margin = 5
         for i in range((end_time - start_time + 1)): # hours to display
             if i == 0:
                 continue # skip the first hour label
@@ -208,7 +209,12 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
                 hour_str = f"{hour - 12}pm"
 
             y_pos = grid_start_y + (i * cell_height) - cell_height / 2  # Align with horizontal line
-            draw.text((grid_start_x - 50, y_pos), hour_str, font=titleFont, fill=legend_color)
+
+            # Calculate text width to right-align
+            text_width = titleFont.getlength(hour_str)
+            x_pos = grid_start_x - time_label_margin - text_width #right aligned
+
+            draw.text((x_pos, y_pos), hour_str, font=titleFont, fill=legend_color)
 
         # --- Draw Events ---
         for event in all_events_this_week:
