@@ -270,10 +270,11 @@
             <a href="/generateImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Generate
               Calendar Image</a>
 
-            <input type="file" id="photoInput" style="display:none" accept="image/*" />
-
-            <label for="photoInput" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
-              <i class="material-icons">file_upload</i> Upload Photo</label>
+            <div class="form-group">
+              <label for="imageUpload" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Choose Image</label>
+              <input type="file" clear-on-submit="true" id="imageUpload" name="imageFile" accept="image/*"
+                class="file-upload-input" onchange="showFileName()">
+            </div>
 
             <button id="generatePhotoButton" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
               disabled>Generate Photo</button>
@@ -328,7 +329,7 @@
     }
 
     // Photo Upload and Generation Logic
-    const photoInput = document.getElementById('photoInput');
+    const photoInput = document.getElementById('imageUpload');
     const generatePhotoButton = document.getElementById('generatePhotoButton');
 
     photoInput.addEventListener('change', function () {
@@ -339,32 +340,6 @@
       }
     });
 
-    generatePhotoButton.addEventListener('click', function () {
-      if (photoInput.files.length > 0) {
-        const file = photoInput.files[0];
-        const formData = new FormData();
-        formData.append('photo', file);
-
-        fetch('/generatePhoto', {
-          method: 'POST',
-          body: formData
-        })
-          .then(response => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error('Response was not OK');
-            }
-          })
-          .then(data => {
-            console.log('Success:', data);
-            if (data.message == undefined) {
-              alert("Photo Generated Successfully")
-            }
-
-          });
-      }
-    });
   </script>
 </body>
 
