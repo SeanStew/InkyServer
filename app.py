@@ -198,6 +198,7 @@ def generatePhoto():
     photo_file = request.files['photo']
 
     try:
+        print("Generating photo...")
         photo = Image.open(photo_file)
 
         # Resize and adjust orientation
