@@ -270,15 +270,14 @@
             <a href="/generateImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Generate
               Calendar Image</a>
 
-            <div class="form-group">
-              <label for="imageUpload" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Choose
-                Image</label>
-              <input type="file" clear-on-submit="true" id="imageUpload" name="imageFile" accept="image/*"
-                style="display:none" class="file-upload-input">
-            </div>
-
-            <button id="generatePhotoButton" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
-              disabled>Generate Photo</button>
+              <div class="form-group">
+                <label for="imageUpload" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Choose Image</label>
+                <input type="file" clear-on-submit="true" id="imageUpload" name="photo" accept="image/*" style="display:none"
+                  class="file-upload-input">
+              </div>
+  
+              <button id="generatePhotoButton" type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                disabled>Generate Photo</button>
 
             <a href="/showImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">View Image</a>
           </div>
@@ -346,6 +345,10 @@
       event.preventDefault(); // Prevent the default form submission
 
       const file = photoInput.files[0];
+      if (!file) {
+        alert("Please select a Photo");
+        return;
+      }
       const formData = new FormData();
       formData.append('photo', file);
 
@@ -362,6 +365,10 @@
         .then(data => {
           console.log('Photo generated:', data);
           alert("Photo generated successfully!");
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert("Error generating photo. Check console for details.");
         });
     }
     );
