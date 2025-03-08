@@ -184,12 +184,8 @@ def generateImage():
         print(f"Error sending file: {e}")
         return f"Error sending file: {e}", 500
 
-@app.route("/generatePhoto", methods=["GET", "POST"])
+@app.route("/generatePhoto", methods=["POST"])
 def generatePhoto():
-    if request.method == "GET":
-        print("image uploaded")
-        return redirect(url_for('index'))
-
     global settings
     resolution = DEFAULT_RESOLUTION
     global photo
