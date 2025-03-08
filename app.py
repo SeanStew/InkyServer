@@ -39,7 +39,6 @@ settings = {
     "title_text_size": 18,
     "grid_color": "#000000",
     "legend_color": "#000000",
-    "should_dither": True,
     "active_start_time": "08:00",
     "active_end_time": "20:00",
     "last_sync": "",
@@ -205,8 +204,7 @@ def generatePhoto():
         image = change_orientation(photo, "horizontal")
         image = resize_image(image, resolution)
 
-        if settings["should_dither"]:
-            image = apply_floyd_steinberg_dithering(image)
+        image = apply_floyd_steinberg_dithering(image)
 
         imagePath = os.path.join("static", IMAGE_FILENAME)
         image.save(imagePath)
