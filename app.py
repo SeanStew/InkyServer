@@ -193,11 +193,10 @@ def generatePhoto():
     global settings
     resolution = DEFAULT_RESOLUTION
     global photo
+
     if 'photo' in request.files:
         print("image pulled")
         photo = Image.open(request.files['photo'])
-
-    if photo is not None:
         # Resize and adjust orientation
         image = change_orientation(photo, "horizontal")
         image = resize_image(image, resolution)
@@ -220,6 +219,8 @@ def generatePhoto():
             return f"Error getting buffer: {e}", 500
         
         return jsonify(status="done", file=header_file)
+    else:
+        return jsonify({"message": "No photo provided"}), 400
     
 @app.route("/getImage", methods=["GET"])
 def getImage():

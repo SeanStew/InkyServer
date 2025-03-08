@@ -277,7 +277,7 @@
 
             <button id="generatePhotoButton" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
               disabled>Generate Photo</button>
-              
+
             <a href="/showImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">View Image</a>
           </div>
         </form>
@@ -349,13 +349,19 @@
           method: 'POST',
           body: formData
         })
-          .then(response => response.json())
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error('Response was not OK');
+            }
+          })
           .then(data => {
             console.log('Success:', data);
-            alert("Photo Generated Successfully")
-          })
-          .catch((error) => {
-            console.error('Error:', error);
+            if (data.message == undefined) {
+              alert("Photo Generated Successfully")
+            }
+
           });
       }
     });
