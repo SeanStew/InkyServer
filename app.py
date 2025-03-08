@@ -189,38 +189,34 @@ def generatePhoto():
     if request.method == "GET":
         return jsonify({"message": "GET request not allowed for generate Photo"}), 405
 
-    global settings
+    global settings, photo
     resolution = DEFAULT_RESOLUTION
-    global photo
 
-    print(request.files)
-    if 'photo' in request.files:
-        print("image pulled")
-        photo = Image.open(request.files['photo'])
+    if 'photo' not in request.files:
+        return jsonify({"message": "No photo provided"}), 400
+
+    photo_file = request.files['photo']
+
+    try:
+        photo = Image.open(photo_file)
+
         # Resize and adjust orientation
         image = change_orientation(photo, "horizontal")
         image = resize_image(image, resolution)
 
-        # Save the image
-        try:
-            if (settings["should_dither"]):
-                image = apply_floyd_steinberg_dithering(image)
+        if settings["should_dither"]:
+            image = apply_floyd_steinberg_dithering(image)
 
-            imagePath = os.path.join("static", IMAGE_FILENAME)
-            image.save(imagePath)
-        except Exception as e:
-            print(f"Error generating or saving 7-color image: {e}")
-            return f"Error generating or saving 7-color image: {e}", 500
+        imagePath = os.path.join("static", IMAGE_FILENAME)
+        image.save(imagePath)
 
-        try:
-            header_file = convert_image_to_header(image, os.path.join("static", HEADER_FILENAME))
-        except Exception as e:
-            print(f"Error getting buffer: {e}")
-            return f"Error getting buffer: {e}", 500
+        header_file = convert_image_to_header(image, os.path.join("static", HEADER_FILENAME))
         
         return jsonify(status="done", file=header_file)
-    else:
-        return jsonify({"message": "No photo provided"}), 400
+
+    except Exception as e:
+        print(f"Error generating or saving photo: {e}")
+        return f"Error generating or saving photo: {e}", 500
     
 @app.route("/getImage", methods=["GET"])
 def getImage():
