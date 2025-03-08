@@ -190,6 +190,7 @@ def generatePhoto():
     resolution = DEFAULT_RESOLUTION
     global photo
 
+    print("we got here")
     if 'photo' in request.files:
         print("image pulled")
         photo = Image.open(request.files['photo'])
