@@ -6,7 +6,7 @@ import threading
 import time as time_module
 
 from utils.cal_utils import generate_calendar_image
-from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering
+from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering, apply_simple_dither
 
 app = Flask(__name__)
 
@@ -204,7 +204,9 @@ def generatePhoto():
         image = change_orientation(photo, "horizontal")
         image = resize_image(image, resolution)
 
-        image = apply_floyd_steinberg_dithering(image)
+        # image = apply_floyd_steinberg_dithering(image)
+
+        image = apply_simple_dither(image)
 
         imagePath = os.path.join("static", IMAGE_FILENAME)
         image.save(imagePath)

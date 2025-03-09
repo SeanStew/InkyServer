@@ -63,6 +63,12 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         start = component.get('dtstart').dt
         end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
 
+        if isinstance(start, datetime):
+            if start.tzinfo is None:
+                start = timezone.localize(start)
+            else:
+                start = start.astimezone(timezone)
+
         if (type(start) is dtdate or type(end) is dtdate):
             continue  # Skip all-day events
 

@@ -105,6 +105,11 @@ def apply_floyd_steinberg_dithering(image):
     pixels = np.clip(pixels, 0, 255)
     return Image.fromarray(pixels.astype(np.uint8))
 
+def apply_simple_dither(image):
+    pal_image = Image.new("P", (1,1))
+    pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
+    return image.convert("RGB").quantize(palette=pal_image)
+
 def  convert_image_to_header(image, output_file_path):
     image_width, image_height = image.size  # Get the actual image dimensions
 
