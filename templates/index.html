@@ -288,8 +288,8 @@
               Save Settings
             </button>
 
-            <a href="/generateImage" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Generate
-              Calendar Image</a>
+            <button id="generateCalendarButton" type="button"
+            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" disabled>Generate Calendar</button>
 
             <div class="form-group">
               <label for="imageUpload" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Choose
@@ -356,12 +356,32 @@
     const spinnerContainer = document.querySelector('.spinner-container');
     const spinner = document.querySelector('.mdl-spinner');
 
-    photoInput.addEventListener('change', function () {
-      if (photoInput.files.length > 0) {
-        generatePhotoButton.disabled = false;
-      } else {
-        generatePhotoButton.disabled = true;
-      }
+    document.getElementById('generateCalendarButton').addEventListener('click', function (event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      spinnerContainer.style.display = 'block';
+
+      fetch('/generateImage', {
+        method: 'GET'
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Photo generated:', data);
+          alert("Photo generated successfully!");
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert("Error generating photo. Check console for details.");
+        })
+        .finally(() => {
+          spinnerContainer.style.display = 'none';
+        });
+
     });
 
     generatePhotoButton.addEventListener('click', function (event) {
@@ -395,7 +415,6 @@
           alert("Error generating photo. Check console for details.");
         })
         .finally(() => {
-          // Hide the spinner
           spinnerContainer.style.display = 'none';
         });
     }

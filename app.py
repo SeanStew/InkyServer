@@ -204,7 +204,7 @@ def generatePhoto():
         image = change_orientation(photo, "horizontal")
         image = resize_image(image, resolution)
 
-        # image = apply_floyd_steinberg_dithering(image)
+        image = apply_floyd_steinberg_dithering(image)
 
         imagePath = os.path.join("static", IMAGE_FILENAME)
         image.save(imagePath)
