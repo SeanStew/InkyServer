@@ -356,7 +356,7 @@
     const spinnerContainer = document.querySelector('.spinner-container');
     const spinner = document.querySelector('.mdl-spinner');
 
-    document.getElementById('add-calendar').addEventListener('change', function () {
+    photoInput.addEventListener('change', function () {
       if (photoInput.files.length > 0) {
         generatePhotoButton.disabled = false;
       } else {
