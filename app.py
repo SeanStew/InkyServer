@@ -249,19 +249,21 @@ def wakeup_interval():
         active_end_time = time.fromisoformat(active_end_time_str)
     except ValueError:
         print(f"Invalid time format for active_start_time or active_end_time. Using defaults.")
-        active_start_time = time(8,0)
-        active_end_time = time(20,0)
+        active_start_time = time(7,0)
+        active_end_time = time(22,0)
 
     if active_start_time <= current_time < active_end_time:
         interval = update_frequency * 60
     else:
-        # Calculate seconds until the next 8 AM
-        next_morning = datetime.combine(now.date() + timedelta(days=1), active_start_time)
-        interval = int((next_morning - now).total_seconds())
+        # Calculate seconds until active start time
+        next_active_start_time = datetime.combine(now.date(), active_start_time)
+        if current_time >= active_start_time:
+            next_active_start_time += timedelta(days=1)  # Move to the next day if already passed today
+        interval = int((next_active_start_time - now).total_seconds())
     
     # Set the trigger flag to True and calculate the trigger time 30 minutes from now
     trigger_generate_image = True
-    duration_to_wait = interval - 600
+    duration_to_wait = interval - (60 * 10)
     if (duration_to_wait < 0):
         duration_to_wait = 600
     generate_image_trigger_time = now + timedelta(seconds=duration_to_wait)
