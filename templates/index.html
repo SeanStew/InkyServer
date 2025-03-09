@@ -356,6 +356,14 @@
     const spinnerContainer = document.querySelector('.spinner-container');
     const spinner = document.querySelector('.mdl-spinner');
 
+    document.getElementById('add-calendar').addEventListener('change', function () {
+      if (photoInput.files.length > 0) {
+        generatePhotoButton.disabled = false;
+      } else {
+        generatePhotoButton.disabled = true;
+      }
+    });
+
     document.getElementById('generateCalendarButton').addEventListener('click', function (event) {
       event.preventDefault(); // Prevent the default form submission
 
