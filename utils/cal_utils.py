@@ -94,10 +94,27 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         event['location'] = str(component.get('location')) if component.get('location') else ""
         event['sequence'] = int(component.get('SEQUENCE')) if component.get('SEQUENCE') is not None else 0
         event['uid'] = str(component.get('UID')) if component.get('UID') is not None else ""
-        event['start'] = component.get('dtstart').dt
-        event['end'] = component.get('dtend').dt
+
+        start = component.get('dtstart').dt
+        end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
+
+        if (type(start) is dtdate or type(end) is dtdate):
+            continue  # Skip all-day events
+
+        if isinstance(start, datetime):
+            if start.tzinfo is None:
+                start = pytz.utc.localize(start).astimezone(timezone)
+            else:
+                start = start.astimezone(timezone)
+        if isinstance(end, datetime):
+            if end.tzinfo is None:
+                end = pytz.utc.localize(end).astimezone(timezone)
+            else:
+                end = end.astimezone(timezone)
 
         if event['uid'] not in events_dict or event['sequence'] > events_dict[event['uid']]['sequence']:
+                    event['start'] = component.get('dtstart').dt
+                    event['end'] = component.get('dtend').dt
                     events_dict[event['uid']] = event
 
     return sorted(events_dict.values(), key=lambda x: x['start'])
