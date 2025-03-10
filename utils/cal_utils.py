@@ -86,7 +86,7 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
             if event['uid'] not in events_dict or event['sequence'] > events_dict[event['uid']]['sequence']:
                 events_dict[event['uid']] = event
 
-    recurring_events = recurring_ical_events.from_ical(cal).between(start_date, end_date)
+    recurring_events = recurring_ical_events.of(cal).between(start_date, end_date)
     for event in recurring_events:
         event = {}
         event['summary'] = str(component.get('summary')) if component.get('summary') else "No Summary"
