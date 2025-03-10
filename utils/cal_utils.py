@@ -113,9 +113,9 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
                 end = end.astimezone(timezone)
 
         if event['uid'] not in events_dict or event['sequence'] > events_dict[event['uid']]['sequence']:
-                    event['start'] = component.get('dtstart').dt
-                    event['end'] = component.get('dtend').dt
-                    events_dict[event['uid']] = event
+            event['start'] = component.get('dtstart').dt
+            event['end'] = component.get('dtend').dt
+            events_dict[event['uid']] = event
 
     return sorted(events_dict.values(), key=lambda x: x['start'])
 
