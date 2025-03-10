@@ -57,7 +57,6 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         event = {}
         event['summary'] = str(component.get('summary')) if component.get('summary') else "No Summary"
         event['description'] = str(component.get('description')) if component.get('description') else ""
-        event['location'] = str(component.get('location')) if component.get('location') else ""
         event['sequence'] = int(component.get('SEQUENCE')) if component.get('SEQUENCE') is not None else 0
         event['uid'] = str(component.get('UID')) if component.get('UID') is not None else ""
 
@@ -91,7 +90,6 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         temp_event = {}
         temp_event['summary'] = str(event['summary']) if event['summary'] else "No Summary"
         temp_event['description'] = str(event['SUMMARY']) if event['SUMMARY'] else ""
-        temp_event['location'] = str(event['location']) if event['location'] else ""
         temp_event['sequence'] = int(event['SEQUENCE']) if event['SEQUENCE'] is not None else 0
         temp_event['uid'] = str(event['UID']) if event['UID'] is not None else ""
 
