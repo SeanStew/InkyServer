@@ -88,15 +88,15 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
 
     recurring_events = recurring_ical_events.of(cal).between(start_date, end_date)
     for event in recurring_events:
-        event = {}
-        event['summary'] = str(component.get('summary')) if component.get('summary') else "No Summary"
-        event['description'] = str(component.get('description')) if component.get('description') else ""
-        event['location'] = str(component.get('location')) if component.get('location') else ""
-        event['sequence'] = int(component.get('SEQUENCE')) if component.get('SEQUENCE') is not None else 0
-        event['uid'] = str(component.get('UID')) if component.get('UID') is not None else ""
+        temp_event = {}
+        temp_event['summary'] = str(event['summary']) if event['summary'] else "No Summary"
+        temp_event['description'] = str(event['description']) if event['description'] else ""
+        temp_event['location'] = str(event['location']) if event['location'] else ""
+        temp_event['sequence'] = int(event['SEQUENCE']) if event['SEQUENCE'] is not None else 0
+        temp_event['uid'] = str(event['UID']) if event['UID'] is not None else ""
 
-        start = component.get('dtstart').dt
-        end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
+        start = event['dtstart'].dt
+        end = event['dtend'].dt if event['dtend'] else start # handle events without end date
 
         if (type(start) is dtdate or type(end) is dtdate):
             continue  # Skip all-day events
@@ -112,10 +112,10 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
             else:
                 end = end.astimezone(timezone)
 
-        if event['uid'] not in events_dict or event['sequence'] > events_dict[event['uid']]['sequence']:
-            event['start'] = component.get('dtstart').dt
-            event['end'] = component.get('dtend').dt
-            events_dict[event['uid']] = event
+        if temp_event['uid'] not in events_dict or temp_event['sequence'] > events_dict[temp_event['uid']]['sequence']:
+            temp_event['start'] = event['dtstart'].dt
+            temp_event['end'] = event['dtend'].dt
+            events_dict[temp_event['uid']] = temp_event
 
     return sorted(events_dict.values(), key=lambda x: x['start'])
 
