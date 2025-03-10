@@ -160,7 +160,7 @@ def generateImage():
         return f"Error generating calendar image: {e}", 500
 
     # adjust orientation
-    # image = apply_simple_dither(image)
+    image = apply_simple_dither(image)
 
     # Save the image
     try:
