@@ -1,5 +1,5 @@
 import requests
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 from io import BytesIO
 import numpy as np
 import logging

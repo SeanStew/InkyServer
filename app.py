@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, jsonify, redirect, url_for
+from flask import Flask, render_template, request, send_file, jsonify
 import os
 from datetime import datetime, time, timedelta
 from PIL import Image
@@ -6,7 +6,7 @@ import threading
 import time as time_module
 
 from utils.cal_utils import generate_calendar_image
-from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_floyd_steinberg_dithering, apply_simple_dither
+from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_simple_dither
 
 app = Flask(__name__)
 

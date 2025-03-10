@@ -3,7 +3,6 @@ from icalendar import Calendar
 import recurring_ical_events
 from datetime import datetime, timedelta, date as dtdate
 import pytz
-from dateutil import rrule
 import logging
 
 from utils.app_utils import get_font
