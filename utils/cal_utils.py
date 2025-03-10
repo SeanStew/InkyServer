@@ -1,5 +1,6 @@
 import requests
 from icalendar import Calendar
+import recurring_ical_events
 from datetime import datetime, timedelta, date as dtdate
 import pytz
 from dateutil import rrule
@@ -63,12 +64,6 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         start = component.get('dtstart').dt
         end = component.get('dtend').dt if component.get('dtend') else start # handle events without end date
 
-        if isinstance(start, datetime):
-            if start.tzinfo is None:
-                start = timezone.localize(start)
-            else:
-                start = start.astimezone(timezone)
-
         if (type(start) is dtdate or type(end) is dtdate):
             continue  # Skip all-day events
 
@@ -82,36 +77,27 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
                 end = pytz.utc.localize(end).astimezone(timezone)
             else:
                 end = end.astimezone(timezone)
+        
+        if start_date <= start <= end_date or start_date <= end <= end_date or (start <= start_date and end >= end_date):
+            event['start'] = start
+            event['end'] = end
 
-        if 'RRULE' in component:  # Handle recurring events
-            rule = rrule.rrulestr(component['RRULE'].to_ical().decode('utf-8'), dtstart=start)
-            for occurrence in rule.between(start_date, end_date, inc=True):
-                occurrence_end = end + (occurrence - start)  # calculate end of recurring event.
-                if occurrence_end < occurrence:
-                    occurrence_end = occurrence  # edge case handling.
-                if occurrence_end.date() < start_date.date() or occurrence.date() > end_date.date():
-                    continue;
+            # Check for duplicate UIDs
+            if event['uid'] not in events_dict or event['sequence'] > events_dict[event['uid']]['sequence']:
+                events_dict[event['uid']] = event
 
-                occurrence_event = {
-                    'summary': event['summary'],
-                    'description': event['description'],
-                    'location': event['location'],
-                    'start': occurrence,
-                    'end': occurrence_end,
-                    'sequence': event['sequence'],
-                    'uid': event['uid']
-                }
-                #Check for duplicate UIDs
-                if occurrence_event['uid'] not in events_dict or occurrence_event['sequence'] > events_dict[occurrence_event['uid']]['sequence']:
-                  events_dict[occurrence_event['uid']] = occurrence_event
-                
-        else:
-            if start_date <= start <= end_date or start_date <= end <= end_date or (start <= start_date and end >= end_date):
-                event['start'] = start
-                event['end'] = end
+    recurring_events = recurring_ical_events.from_ical(cal).between(start_date, end_date)
+    for event in recurring_events:
+        event = {}
+        event['summary'] = str(component.get('summary')) if component.get('summary') else "No Summary"
+        event['description'] = str(component.get('description')) if component.get('description') else ""
+        event['location'] = str(component.get('location')) if component.get('location') else ""
+        event['sequence'] = int(component.get('SEQUENCE')) if component.get('SEQUENCE') is not None else 0
+        event['uid'] = str(component.get('UID')) if component.get('UID') is not None else ""
+        event['start'] = component.get('dtstart').dt
+        event['end'] = component.get('dtend').dt
 
-                # Check for duplicate UIDs
-                if event['uid'] not in events_dict or event['sequence'] > events_dict[event['uid']]['sequence']:
+        if event['uid'] not in events_dict or event['sequence'] > events_dict[event['uid']]['sequence']:
                     events_dict[event['uid']] = event
 
     return sorted(events_dict.values(), key=lambda x: x['start'])

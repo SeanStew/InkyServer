@@ -9,3 +9,4 @@ datetime
 schedule
 python-dateutil
 icalendar
+recurring-ical-events
