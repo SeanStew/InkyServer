@@ -178,6 +178,40 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
         titleFont = get_font("roboto-bold", title_text_size)
         textFont = get_font("roboto", event_text_size)
 
+        # --- Draw Events ---
+        for event in all_events_this_week:
+            # Access event data using properties
+            start_dt = event['start'].astimezone(vancouver_timezone)  # Get start time as datetime object
+            end_dt = event['end'].astimezone(vancouver_timezone)    # Get end time as datetime object
+
+            # Calculate event position and duration
+            day_offset = (start_dt.date() - todayDate).days
+            x_pos = grid_start_x + day_offset * cell_width
+
+            # Calculate y_pos with minute precision
+            y_pos = grid_start_y + (start_dt.hour - start_time) * cell_height + (start_dt.minute / 60) * cell_height
+
+            event_duration_hours = (end_dt - start_dt).total_seconds() / 3600
+            event_height = event_duration_hours * cell_height
+            
+            event_color = event['color'] if 'color' in event else "#ff0000"
+
+            # Draw the event rectangle
+            if start_time <= start_dt.hour <= end_time or start_time <= end_dt.hour <= end_time:
+                draw.rounded_rectangle(
+                    [
+                        (x_pos, y_pos),
+                        (x_pos + cell_width, y_pos + event_height)
+                    ],
+                    event_card_radius,
+                    outline=0,
+                    fill=event_color
+                )
+
+                # Draw event summary with wrapping
+                wrapped_text = wrap_text(event['summary'], textFont, cell_width - 10)
+                draw.multiline_text((x_pos + 5, y_pos + 5), wrapped_text, font=textFont, fill=event_text_color)
+
         # --- Grid Setup ---
         grid_start_x = 55  # Left margin for time labels
         grid_start_y = 20  # Top margin for date labels
@@ -228,40 +262,6 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
             x_pos = grid_start_x - time_label_margin - text_width #right aligned
 
             draw.text((x_pos, y_pos), hour_str, font=titleFont, fill=legend_color)
-
-        # --- Draw Events ---
-        for event in all_events_this_week:
-            # Access event data using properties
-            start_dt = event['start'].astimezone(vancouver_timezone)  # Get start time as datetime object
-            end_dt = event['end'].astimezone(vancouver_timezone)    # Get end time as datetime object
-
-            # Calculate event position and duration
-            day_offset = (start_dt.date() - todayDate).days
-            x_pos = grid_start_x + day_offset * cell_width
-
-            # Calculate y_pos with minute precision
-            y_pos = grid_start_y + (start_dt.hour - start_time) * cell_height + (start_dt.minute / 60) * cell_height
-
-            event_duration_hours = (end_dt - start_dt).total_seconds() / 3600
-            event_height = event_duration_hours * cell_height
-            
-            event_color = event['color'] if 'color' in event else "#ff0000"
-
-            # Draw the event rectangle
-            if start_time <= start_dt.hour <= end_time or start_time <= end_dt.hour <= end_time:
-                draw.rounded_rectangle(
-                    [
-                        (x_pos, y_pos),
-                        (x_pos + cell_width, y_pos + event_height)
-                    ],
-                    event_card_radius,
-                    outline=0,
-                    fill=event_color
-                )
-
-                # Draw event summary with wrapping
-                wrapped_text = wrap_text(event['summary'], textFont, cell_width - 10)
-                draw.multiline_text((x_pos + 5, y_pos + 5), wrapped_text, font=textFont, fill=event_text_color)
 
         return img
     

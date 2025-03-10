@@ -159,9 +159,8 @@ def generateImage():
         print(f"Error generating calendar image: {e}")
         return f"Error generating calendar image: {e}", 500
 
-    # Resize and adjust orientation
-    image = change_orientation(image, "horizontal")
-    image = resize_image(image, resolution)
+    # adjust orientation
+    image = apply_simple_dither(image)
 
     # Save the image
     try:
