@@ -8,15 +8,15 @@ import os
 logger = logging.getLogger(__name__)
 
 # Define the color palette mapping
-color_palette = {
-    (0, 0, 0): 0x00,        # Black
-    (255, 255, 255): 0xFF,  # White
-    (0, 255, 0): 0x35,      # Green
-    (0, 0, 255): 0x2B,      # Blue
-    (255, 0, 0): 0xE0,      # Red
-    (255, 255, 0): 0xFC,    # Yellow
-    (255, 128, 0): 0xEC,    # Orange
-}
+colors = [
+    (0, 0, 0),       # Black
+    (255, 255, 255), # White
+    (0, 255, 0),     # Green
+    (0, 0, 255),     # Blue
+    (255, 0, 0),     # Red
+    (255, 255, 0),   # Yellow
+    (255, 128, 0)    # Orange
+]
 
 def get_image(image_url):
     response = requests.get(image_url)
@@ -68,20 +68,6 @@ def resize_image(image, desired_size):
 
     # Step 3: Resize to the exact desired dimensions (if necessary)
     return cropped_image.resize((desired_width, desired_height), Image.LANCZOS)
-
-def closest_palette_color(rgb):
-    """Find the closest color in the palette."""
-    min_dist = float('inf')
-    closest_color = (255, 255, 255)  # Default to white
-    for palette_rgb in color_palette:
-        # Cast to int32 to prevent overflow during calculations
-        dist = sum((int(rgb[i]) - int(palette_rgb[i])) ** 2 for i in range(3))
-        if dist < min_dist:
-            min_dist = dist
-            closest_color = palette_rgb
-    return closest_color
-
-def apply_floyd_steinberg_dithering(image):
     """Apply Floyd-Steinberg dithering to the image."""
     pixels = np.array(image, dtype=np.int16)  # Use int16 to allow negative values during error distribution
     for y in range(image.height):
@@ -106,8 +92,10 @@ def apply_floyd_steinberg_dithering(image):
     return Image.fromarray(pixels.astype(np.uint8))
 
 def apply_simple_dither(image):
+    flat_palette = [c for color in colors for c in color]
+
     pal_image = Image.new("P", (1,1))
-    pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
+    pal_image.putpalette(flat_palette)
     return image.convert("RGB").quantize(palette=pal_image, dither=Image.Dither.NONE)
 
 def  convert_image_to_header(image, output_file_path):
