@@ -96,7 +96,7 @@ def apply_simple_dither(image):
 
     pal_image = Image.new("P", (1,1))
     pal_image.putpalette(flat_palette)
-    return image.convert("RGB").quantize(palette=pal_image, dither=Image.Dither.NONE)
+    return image.convert("RGB").quantize(palette=pal_image)
 
 def  convert_image_to_header(image, output_file_path):
     image_width, image_height = image.size  # Get the actual image dimensions
