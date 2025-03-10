@@ -96,6 +96,12 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
         start = event['dtstart'].dt
         end = event['dtend'].dt if event['dtend'] else start # handle events without end date
 
+        # Check for cancelled or moved events
+        status = event['STATUS']
+        if status:
+            if str(status).upper() == "CANCELLED":
+                continue
+
         if (type(start) is dtdate or type(end) is dtdate):
             continue  # Skip all-day events
 
