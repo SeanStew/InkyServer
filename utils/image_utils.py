@@ -119,16 +119,12 @@ def  convert_image_to_header(image, output_file_path):
     buf = [0x00] * buffer_size
 
     #Check if buff size is correct
-    if len(buff_image) != (image_width * image_height):
-        logger.warning(f"Unexpected buffer size. expected:{image_width * image_height} got: {len(buff_image)}")
+    # PIL does not support 4 bit color, so pack the 4 bits of color
+    # into a single byte to transfer to the panel
     idx = 0
     for i in range(0, len(buff_image), 2):
-        if i + 1 < len(buff_image):  # Check if there's a pair
-            buf[idx] = (buff_image[i] << 4) + buff_image[i+1]
-            idx += 1
-        elif i < len(buff_image): #handle odd numbers
-            buf[idx] = (buff_image[i] << 4)
-            idx+=1
+        buf[idx] = (buff_image[i] << 4) + buff_image[i+1]
+        idx += 1
         
     if len(buf) != buffer_size:
         logger.error(f"Unexpected out buffer size, expected {buffer_size} got: {len(buf)}")
