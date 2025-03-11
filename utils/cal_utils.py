@@ -116,9 +116,7 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
     # Measure date text size
     date_text_bbox = draw.textbbox((0, 0), date_str, font=large_font)
     date_text_width = date_text_bbox[2] - date_text_bbox[0]
-    date_text_height = date_text_bbox[3] - date_text_bbox[1]
 
-    #Center Date vertically
     date_y = y + (cell_height / 2) - (weather_icon_size / 2)
 
     # Calculate the total width needed for temp and icon
@@ -145,11 +143,13 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
             else:
                 icon = Image.open(icon_path)
             
-            icon = icon.resize((weather_icon_size, weather_icon_size))
-            icon_x = x + (cell_width - total_width) / 2
-            icon_y = date_y + date_text_bbox[3] - date_text_bbox[1]
+            padding = 5
 
-            temp_x = icon_x + weather_icon_size
+            icon = icon.resize((weather_icon_size, weather_icon_size))
+            icon_x = x + (cell_width - total_width) / 2 - padding
+            icon_y = date_y + date_text_bbox[3] - date_text_bbox[1] + padding
+
+            temp_x = icon_x + weather_icon_size + padding
             temp_y = icon_y + (weather_icon_size / 2) - (temp_text_bbox[3] - temp_text_bbox[1])/2
 
             draw.text((temp_x, temp_y), temp_str, font=small_font, fill=legend_color)
