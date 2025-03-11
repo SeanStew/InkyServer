@@ -95,7 +95,7 @@ def get_daily_weather(weather_data, date):
 
     for item in weather_data['list']:
         item_date = datetime.fromtimestamp(item['dt'])
-        if item_date.date() == date.date() and item_date.time() == time(12,0,0):
+        if item_date.date() == date and item_date.time() == time(12,0,0):
             temp = item['main']['temp']
             icon = item['weather'][0]['icon']
             return temp, icon
