@@ -150,7 +150,7 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
             icon_y = date_y + date_text_bbox[3] - date_text_bbox[1] + padding
 
             temp_x = icon_x + weather_icon_size + padding
-            temp_y = icon_y + (weather_icon_size / 2) - (temp_text_bbox[3] - temp_text_bbox[1])/2
+            temp_y = icon_y + (weather_icon_size / 2) - (temp_text_bbox[3] - temp_text_bbox[1])/2 - padding
 
             draw.text((temp_x, temp_y), temp_str, font=small_font, fill=legend_color)
             image.paste(icon, (int(icon_x), int(icon_y)), icon) # Paste icon
@@ -310,6 +310,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
         draw = ImageDraw.Draw(img)
         titleFont = get_font("roboto-bold", title_text_size)
         textFont = get_font("roboto", event_text_size)
+        weatherFont = get_font("roboto", event_text_size+2)
 
         # --- Grid Setup ---
         grid_start_x = 55  # Left margin for time labels
@@ -346,7 +347,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
                               temp, 
                               icon_id, 
                               titleFont,
-                              textFont, 
+                              weatherFont, 
                               cell_width, 
                               cell_height, 
                               legend_color = legend_color)
