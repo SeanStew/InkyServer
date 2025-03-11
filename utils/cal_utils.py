@@ -136,19 +136,16 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
     if icon_id:
         try:
             icon_url = f"https://openweathermap.org/img/wn/{icon_id}@2x.png"
-            print(icon_url)
             response = requests.get(icon_url)
             response.raise_for_status()
             icon = Image.open(BytesIO(response.content))
 
-            print("resize icon")
             icon = icon.resize((weather_icon_size, weather_icon_size))
-            print("icon_position")
             icon_x = x + (cell_width - weather_icon_size) // 2
             icon_y = date_y + weather_icon_size // 2
             # Paste icon
             print(f"paste icon {icon_x}, {icon_y}")
-            image.paste(icon, (icon_x, icon_y), icon)
+            image.paste(icon, (int(icon_x), int(icon_y)), icon)
 
         except requests.exceptions.RequestException as e:
             print(f"Error fetching weather icon: {e}")
