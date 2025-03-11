@@ -127,7 +127,7 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
     temp_x = x + (cell_width // 2)
 
     if temp is not None:
-        temp_text_bbox = draw.textbbox((0,0), f"{int(temp)}°", font=font)
+        temp_text_bbox = draw.textbbox((0,0), f"{int(temp)}°", font=small_font)
         temp_text_width = temp_text_bbox[2] - temp_text_bbox[0]
         temp_x = x + (cell_width - temp_text_width) // 2
 
