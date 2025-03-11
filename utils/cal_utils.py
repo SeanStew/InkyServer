@@ -1,7 +1,8 @@
 import requests
+import os
 from icalendar import Calendar
 import recurring_ical_events
-from datetime import datetime, timedelta, date as dtdate
+from datetime import datetime, time, timedelta, date as dtdate
 import pytz
 import logging
 
@@ -10,6 +11,9 @@ from utils.image_utils import show_text_image
 from PIL import Image, ImageDraw
 
 logger = logging.getLogger(__name__)
+
+weather_cache = {}
+WEATHER_CACHE_TIMEOUT = 60 * 60  # 1 hour
 
 def wrap_text(text, font, max_width, max_height):
     words = text.split()
@@ -41,6 +45,102 @@ def wrap_text(text, font, max_width, max_height):
         lines.append(current_line)
 
     return '\n'.join(lines)
+
+def get_weather(api_key, location):
+    """
+    Fetches weather data from OpenWeatherMap API.
+    """
+    global weather_cache
+    now = datetime.now()
+    if location in weather_cache and weather_cache[location]["timestamp"] > now - timedelta(seconds=WEATHER_CACHE_TIMEOUT):
+        print("Using weather data from cache.")
+        return weather_cache[location]["data"]
+    
+    try:
+        base_url = "http://api.openweathermap.org/data/2.5/forecast"
+        params = {
+            "q": location,
+            "appid": api_key,
+            "units": "metric"
+        }
+        response = requests.get(base_url, params=params)
+        response.raise_for_status()
+
+        data = response.json()
+        weather_cache[location] = {
+            "timestamp": now,
+            "data": data
+        }
+        return data
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching weather data: {e}")
+        return None
+    except ValueError as e:
+        print(f"Error decoding weather data: {e}")
+        return None
+
+def get_daily_weather(weather_data, date):
+    """
+    Extracts daily temperature and weather icon from weather data.
+    """
+    if weather_data is None:
+        return None, None
+    
+    if 'list' not in weather_data:
+        return None, None
+
+    for item in weather_data['list']:
+        item_date = datetime.fromtimestamp(item['dt'])
+        if item_date.date() == date.date() and item_date.time() == time(12,0,0):
+            temp = item['main']['temp']
+            icon = item['weather'][0]['icon']
+            return temp, icon
+    return None, None
+
+def draw_weather_info(image, x, y, date, temp, icon_id, font, cell_width, cell_height, weather_icon_size=25, title_text_size=14, legend_color="#000000"):
+    """
+    Draws the weather info and date onto the calendar grid cell.
+    """
+    date_str = date.strftime("%a %d")
+
+    draw = ImageDraw.Draw(image)
+    font = get_font("roboto", title_text_size)
+
+    # Measure date text size
+    date_text_bbox = draw.textbbox((0, 0), date_str, font=font)
+    date_text_width = date_text_bbox[2] - date_text_bbox[0]
+    date_text_height = date_text_bbox[3] - date_text_bbox[1]
+
+    #Center Date
+    date_x = x + (cell_width - date_text_width) // 2
+    date_y = y + (cell_height - date_text_height) // 2 - (weather_icon_size // 2)
+
+    draw.text((date_x, date_y), date_str, font=font, fill=legend_color)
+
+    #Center Temp
+    temp_x = x + (cell_width // 2)
+
+    if temp is not None:
+        temp_text_bbox = draw.textbbox((0,0), f"{int(temp)}°", font=font)
+        temp_text_width = temp_text_bbox[2] - temp_text_bbox[0]
+        temp_x = x + (cell_width - temp_text_width) // 2
+
+        draw.text((temp_x, date_y + weather_icon_size), f"{int(temp)}°", font=font, fill="FF0000")
+
+    # Icon
+    if icon_id:
+        try:
+            icon_path = os.path.join("static", "icons", f"{icon_id}.png")  # Assuming icons are in 'static/icons'
+            icon = Image.open(icon_path)
+            icon = icon.resize((weather_icon_size, weather_icon_size))
+            icon_x = x + (cell_width - weather_icon_size) // 2
+            icon_y = date_y + weather_icon_size // 2
+            # Paste icon
+            image.paste(icon, (icon_x, icon_y), icon)
+
+        except FileNotFoundError:
+            print(f"Weather icon not found: {icon_id}.png")
 
 def get_ical_events(ical_url, start_date, end_date, timezone_str):
     """Retrieves events from an iCal URL within a specified date range and timezone."""
@@ -140,7 +240,7 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
 
 def generate_calendar_image(resolution, calendars, start_time=None, end_time=None, 
                    days_to_show=5, event_card_radius=10, event_text_size=124, title_text_size=148, 
-                   grid_color="#000000", event_text_color="#ffffff", legend_color="#000000"):
+                   grid_color="#000000", event_text_color="#ffffff", legend_color="#000000", weather_api_key="", weather_location=""):
         background_color = "white"
 
         #Handle empty calendar list
@@ -214,12 +314,24 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
                 y_pos = grid_start_y + i * cell_height
                 draw.line([(grid_start_x, y_pos), (grid_start_x + grid_width, y_pos)], fill=grid_color, width=1)
 
+        # Get weather
+        weather_data = get_weather(weather_api_key, weather_location)
+
         # --- Date Labels ---
         for i in range(days_to_show):
             day = todayDate + timedelta(days=i)
-            day_str = day.strftime("%a %d")  # Format: "Mon 11"
-            x_pos = grid_start_x + i * cell_width + cell_width / 2 - titleFont.getlength(day_str) / 2
-            draw.text((x_pos, grid_start_y - 20), day_str, font=titleFont, fill=legend_color)
+            temp, icon_id = get_daily_weather(weather_data, day)
+            draw_weather_info(img, 
+                              i * cell_width, 
+                              0, 
+                              day, 
+                              temp, 
+                              icon_id, 
+                              titleFont, 
+                              cell_width, 
+                              cell_height, 
+                              title_text_size = title_text_size, 
+                              legend_color = legend_color)
 
         # --- Time Labels ---
         time_label_margin = 5
@@ -279,5 +391,3 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
                 draw.multiline_text((x_pos + 5, y_pos + 5), wrapped_text, font=textFont, fill=event_text_color)
 
         return img
-    
-

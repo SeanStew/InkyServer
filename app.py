@@ -43,7 +43,9 @@ settings = {
     "active_end_time": "20:00",
     "last_sync": "",
     "next_update": "",
-    "next_sync": ""
+    "next_sync": "",
+    "weather_api_key": "dbf9d40601160ef34eb0ad85123c68b2",
+    "weather_location": "6173331"
 }
 
 # Global variables
@@ -154,6 +156,8 @@ def generateImage():
             grid_color=settings["grid_color"],
             event_text_color="#ffffff",
             legend_color=settings["legend_color"],
+            weather_api_key=settings["weather_api_key"],
+            weather_location=settings["weather_location"]
         )
     except Exception as e:
         print(f"Error generating calendar image: {e}")
