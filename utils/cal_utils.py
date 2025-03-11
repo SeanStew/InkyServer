@@ -5,6 +5,7 @@ from datetime import datetime, time, timedelta, date as dtdate
 import pytz
 import logging
 from io import BytesIO
+import os
 
 from utils.app_utils import get_font
 from utils.image_utils import show_text_image
@@ -135,12 +136,19 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
     # Icon
     if icon_id:
         try:
-            icon_id = icon_id.replace("d", "n")
-            icon_url = f"https://openweathermap.org/img/wn/{icon_id}@2x.png"
-            response = requests.get(icon_url)
-            response.raise_for_status()
-            icon = Image.open(BytesIO(response.content))
+            icon_filename = f"{icon_id}.png"
+            icon_path = os.path.join("static/images", icon_filename)
 
+            if not os.path.exists(icon_path):
+                 print(f"Weather icon not found locally: {icon_path}")
+                 icon_url = f"https://openweathermap.org/img/wn/{icon_id}@2x.png"
+                 response = requests.get(icon_url)
+                 response.raise_for_status()
+                 icon = Image.open(BytesIO(response.content))
+            else:
+                icon = Image.open(icon_path)
+            # --- End Modification ---
+            
             icon = icon.resize((weather_icon_size, weather_icon_size))
             icon_x = x + (cell_width - weather_icon_size) // 2
             icon_y = date_y + weather_icon_size // 2
