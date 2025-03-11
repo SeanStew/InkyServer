@@ -109,6 +109,7 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
     Draws the weather info and date onto the calendar grid cell.
     """
     date_str = date.strftime("%a %d")
+    temp_str = f"{int(temp)}°" if temp is not None else ""
 
     draw = ImageDraw.Draw(image)
 
@@ -117,21 +118,17 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
     date_text_width = date_text_bbox[2] - date_text_bbox[0]
     date_text_height = date_text_bbox[3] - date_text_bbox[1]
 
-    #Center Date
-    date_x = x + (cell_width - date_text_width) // 2
-    date_y = y + (cell_height - date_text_height) // 2 - (weather_icon_size // 2)
+    #Center Date vertically
+    date_y = y + (cell_height / 2) - (weather_icon_size / 2)
+
+    # Calculate the total width needed for temp and icon
+    temp_text_bbox = draw.textbbox((0, 0), temp_str, font=small_font)
+    temp_text_width = temp_text_bbox[2] - temp_text_bbox[0]
+    total_width = temp_text_width + weather_icon_size
+    
+    date_x = x + (cell_width - date_text_width) / 2
 
     draw.text((date_x, date_y), date_str, font=large_font, fill=legend_color)
-
-    #Center Temp
-    temp_x = x + (cell_width // 2)
-
-    if temp is not None:
-        temp_text_bbox = draw.textbbox((0,0), f"{int(temp)}°", font=small_font)
-        temp_text_width = temp_text_bbox[2] - temp_text_bbox[0]
-        temp_x = x + (cell_width - temp_text_width) // 2
-
-        draw.text((temp_x, date_y + weather_icon_size), f"{int(temp)}°", font=small_font, fill="#FF0000")
 
     # Icon
     if icon_id:
@@ -147,14 +144,16 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
                  icon = Image.open(BytesIO(response.content))
             else:
                 icon = Image.open(icon_path)
-            # --- End Modification ---
             
             icon = icon.resize((weather_icon_size, weather_icon_size))
-            icon_x = x + (cell_width - weather_icon_size) // 2
-            icon_y = date_y + weather_icon_size // 2
-            # Paste icon
-            print(f"paste icon {icon_x}, {icon_y}")
-            image.paste(icon, (int(icon_x), int(icon_y)), icon)
+            icon_x = x + (cell_width - total_width) / 2
+            icon_y = date_y + date_text_bbox[3] - date_text_bbox[1]
+
+            temp_x = icon_x + weather_icon_size
+            temp_y = icon_y + (weather_icon_size / 2) - (temp_text_bbox[3] - temp_text_bbox[1])/2
+
+            draw.text((temp_x, temp_y), temp_str, font=small_font, fill=legend_color)
+            image.paste(icon, (int(icon_x), int(icon_y)), icon) # Paste icon
 
         except requests.exceptions.RequestException as e:
             print(f"Error fetching weather icon: {e}")
