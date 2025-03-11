@@ -46,12 +46,14 @@ def wrap_text(text, font, max_width, max_height):
 
     return '\n'.join(lines)
 
-def get_weather(api_key, location):
+def get_weather(api_key, lat, long):
     """
     Fetches weather data from OpenWeatherMap API.
     """
     global weather_cache
     now = datetime.now()
+    location = f"{lat},{long}"
+
     if location in weather_cache and weather_cache[location]["timestamp"] > now - timedelta(seconds=WEATHER_CACHE_TIMEOUT):
         print("Using weather data from cache.")
         return weather_cache[location]["data"]
@@ -59,7 +61,8 @@ def get_weather(api_key, location):
     try:
         base_url = "http://api.openweathermap.org/data/2.5/forecast"
         params = {
-            "q": location,
+            "lat": lat,
+            "lon": long,
             "appid": api_key,
             "units": "metric"
         }
@@ -245,7 +248,7 @@ def get_ical_events(ical_url, start_date, end_date, timezone_str):
 
 def generate_calendar_image(resolution, calendars, start_time=None, end_time=None, 
                    days_to_show=5, event_card_radius=10, event_text_size=124, title_text_size=148, 
-                   grid_color="#000000", event_text_color="#ffffff", legend_color="#000000", weather_api_key="", weather_location=""):
+                   grid_color="#000000", event_text_color="#ffffff", legend_color="#000000", weather_api_key="", lat="", long=""):
         background_color = "white"
 
         #Handle empty calendar list
@@ -320,7 +323,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
                 draw.line([(grid_start_x, y_pos), (grid_start_x + grid_width, y_pos)], fill=grid_color, width=1)
 
         # Get weather
-        weather_data = get_weather(weather_api_key, weather_location)
+        weather_data = get_weather(weather_api_key, lat, long)
 
         # --- Date Labels ---
         for i in range(days_to_show):

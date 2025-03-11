@@ -45,7 +45,8 @@ settings = {
     "next_update": "",
     "next_sync": "",
     "weather_api_key": "dbf9d40601160ef34eb0ad85123c68b2",
-    "weather_location": "6173331"
+    "weather_lat": "49.248",
+    "weather_long": "-123.074"
 }
 
 # Global variables
@@ -157,7 +158,8 @@ def generateImage():
             event_text_color="#ffffff",
             legend_color=settings["legend_color"],
             weather_api_key=settings["weather_api_key"],
-            weather_location=settings["weather_location"]
+            lat=settings["weather_lat"],
+            long=settings["weather_long"]
         )
     except Exception as e:
         print(f"Error generating calendar image: {e}")
