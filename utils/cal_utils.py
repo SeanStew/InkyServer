@@ -100,7 +100,6 @@ def get_daily_weather(weather_data, date):
         if item_date.date() == date and item_date.time() > time(11,0,0):
             temp = item['main']['temp']
             icon = item['weather'][0]['icon']
-            print(f"Temperature for {date}: {temp}°C")
             return temp, icon
     return None, None
 
@@ -137,14 +136,18 @@ def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, 
     if icon_id:
         try:
             icon_url = f"https://openweathermap.org/img/wn/{icon_id}@2x.png"
+            print(icon_url)
             response = requests.get(icon_url)
             response.raise_for_status()
             icon = Image.open(BytesIO(response.content))
 
+            print("resize icon")
             icon = icon.resize((weather_icon_size, weather_icon_size))
+            print("icon_position")
             icon_x = x + (cell_width - weather_icon_size) // 2
             icon_y = date_y + weather_icon_size // 2
             # Paste icon
+            print(f"paste icon {icon_x}, {icon_y}")
             image.paste(icon, (icon_x, icon_y), icon)
 
         except requests.exceptions.RequestException as e:
@@ -332,7 +335,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
             day = todayDate + timedelta(days=i)
             temp, icon_id = get_daily_weather(weather_data, day)
             draw_weather_info(img, 
-                              i * cell_width, 
+                              grid_start_x + (i * cell_width), 
                               5, 
                               day, 
                               temp, 
