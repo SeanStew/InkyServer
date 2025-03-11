@@ -1,10 +1,10 @@
 import requests
-import os
 from icalendar import Calendar
 import recurring_ical_events
 from datetime import datetime, time, timedelta, date as dtdate
 import pytz
 import logging
+from io import BytesIO
 
 from utils.app_utils import get_font
 from utils.image_utils import show_text_image
@@ -131,16 +131,21 @@ def draw_weather_info(image, x, y, date, temp, icon_id, font, cell_width, cell_h
     # Icon
     if icon_id:
         try:
-            icon_path = os.path.join("static", "icons", f"{icon_id}.png")  # Assuming icons are in 'static/icons'
-            icon = Image.open(icon_path)
+            icon_url = f"https://openweathermap.org/img/wn/{icon_id}@2x.png"
+            response = requests.get(icon_url)
+            response.raise_for_status()
+            icon = Image.open(BytesIO(response.content))
+
             icon = icon.resize((weather_icon_size, weather_icon_size))
             icon_x = x + (cell_width - weather_icon_size) // 2
             icon_y = date_y + weather_icon_size // 2
             # Paste icon
             image.paste(icon, (icon_x, icon_y), icon)
 
-        except FileNotFoundError:
-            print(f"Weather icon not found: {icon_id}.png")
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching weather icon: {e}")
+        except Exception as e:
+            print(f"Error processing weather icon: {e}")
 
 def get_ical_events(ical_url, start_date, end_date, timezone_str):
     """Retrieves events from an iCal URL within a specified date range and timezone."""
