@@ -104,7 +104,7 @@ def get_daily_weather(weather_data, date):
             return temp, icon
     return None, None
 
-def draw_weather_info(image, x, y, date, temp, icon_id, font, cell_width, cell_height, weather_icon_size=25, legend_color="#000000"):
+def draw_weather_info(image, x, y, date, temp, icon_id, large_font, small_font, cell_width, cell_height, weather_icon_size=25, legend_color="#000000"):
     """
     Draws the weather info and date onto the calendar grid cell.
     """
@@ -113,7 +113,7 @@ def draw_weather_info(image, x, y, date, temp, icon_id, font, cell_width, cell_h
     draw = ImageDraw.Draw(image)
 
     # Measure date text size
-    date_text_bbox = draw.textbbox((0, 0), date_str, font=font)
+    date_text_bbox = draw.textbbox((0, 0), date_str, font=large_font)
     date_text_width = date_text_bbox[2] - date_text_bbox[0]
     date_text_height = date_text_bbox[3] - date_text_bbox[1]
 
@@ -121,7 +121,7 @@ def draw_weather_info(image, x, y, date, temp, icon_id, font, cell_width, cell_h
     date_x = x + (cell_width - date_text_width) // 2
     date_y = y + (cell_height - date_text_height) // 2 - (weather_icon_size // 2)
 
-    draw.text((date_x, date_y), date_str, font=font, fill=legend_color)
+    draw.text((date_x, date_y), date_str, font=large_font, fill=legend_color)
 
     #Center Temp
     temp_x = x + (cell_width // 2)
@@ -131,7 +131,7 @@ def draw_weather_info(image, x, y, date, temp, icon_id, font, cell_width, cell_h
         temp_text_width = temp_text_bbox[2] - temp_text_bbox[0]
         temp_x = x + (cell_width - temp_text_width) // 2
 
-        draw.text((temp_x, date_y + weather_icon_size), f"{int(temp)}°", font=font, fill="FF0000")
+        draw.text((temp_x, date_y + weather_icon_size), f"{int(temp)}°", font=small_font, fill="#FF0000")
 
     # Icon
     if icon_id:
@@ -337,7 +337,8 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
                               day, 
                               temp, 
                               icon_id, 
-                              titleFont, 
+                              titleFont,
+                              textFont, 
                               cell_width, 
                               cell_height, 
                               legend_color = legend_color)
