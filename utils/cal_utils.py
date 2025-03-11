@@ -88,27 +88,30 @@ def get_daily_weather(weather_data, date):
     Extracts daily temperature and weather icon from weather data.
     """
     if weather_data is None:
+        print("No weather data available.")
         return None, None
     
     if 'list' not in weather_data:
+        print("Invalid weather data format.")
         return None, None
 
     for item in weather_data['list']:
         item_date = datetime.fromtimestamp(item['dt'])
+        print(item_date)
         if item_date.date() == date and item_date.time() == time(12,0,0):
             temp = item['main']['temp']
             icon = item['weather'][0]['icon']
+            print(f"Temperature for {date}: {temp}°C")
             return temp, icon
     return None, None
 
-def draw_weather_info(image, x, y, date, temp, icon_id, font, cell_width, cell_height, weather_icon_size=25, title_text_size=14, legend_color="#000000"):
+def draw_weather_info(image, x, y, date, temp, icon_id, font, cell_width, cell_height, weather_icon_size=25, legend_color="#000000"):
     """
     Draws the weather info and date onto the calendar grid cell.
     """
     date_str = date.strftime("%a %d")
 
     draw = ImageDraw.Draw(image)
-    font = get_font("roboto", title_text_size)
 
     # Measure date text size
     date_text_bbox = draw.textbbox((0, 0), date_str, font=font)
@@ -331,14 +334,13 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
             temp, icon_id = get_daily_weather(weather_data, day)
             draw_weather_info(img, 
                               i * cell_width, 
-                              0, 
+                              5, 
                               day, 
                               temp, 
                               icon_id, 
                               titleFont, 
                               cell_width, 
                               cell_height, 
-                              title_text_size = title_text_size, 
                               legend_color = legend_color)
 
         # --- Time Labels ---
