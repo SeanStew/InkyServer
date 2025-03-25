@@ -6,7 +6,7 @@ import threading
 import time as time_module
 
 from utils.cal_utils import generate_calendar_image
-from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_simple_dither
+from utils.image_utils import change_orientation, resize_image, convert_image_to_header, apply_simple_dither, apply_floyd_steinberg_dithering
 
 app = Flask(__name__)
 
