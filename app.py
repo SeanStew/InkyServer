@@ -14,6 +14,7 @@ app = Flask(__name__)
 DEFAULT_UPDATE_FREQUENCY = 60
 IMAGE_FILENAME = "calendar.png"
 HEADER_FILENAME = "calendar.h"
+HALF_RESOLUTION = (400, 240)
 DEFAULT_RESOLUTION = (800, 480)
 
 ALLOWED_COLORS = {
@@ -206,10 +207,12 @@ def generatePhoto():
 
         # Resize and adjust orientation
         image = change_orientation(photo, "horizontal")
-        image = resize_image(image, resolution)
+        image = resize_image(image, HALF_RESOLUTION)
 
         # image = apply_floyd_steinberg_dithering(image)
 
+        image = apply_simple_dither(image)
+        image = resize_image(image, resolution)
         image = apply_simple_dither(image)
 
         imagePath = os.path.join("static", IMAGE_FILENAME)
