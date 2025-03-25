@@ -100,12 +100,16 @@ def apply_simple_dither(image):
 
 def closest_palette_color(old_color):
     """Finds the closest color in the palette."""
-    distances = [
-        ((old_color[0] - color[0]) ** 2 +
-         (old_color[1] - color[1]) ** 2 +
-         (old_color[2] - color[2]) ** 2)
-        for color in colors
-    ]
+    distances =
+    for color in colors:
+        # Use np.int32 for intermediate calculations to prevent overflow
+        diff_r = np.int32(old_color[0]) - color[0]
+        diff_g = np.int32(old_color[1]) - color[1]
+        diff_b = np.int32(old_color[2]) - color[2]
+        
+        distance = (diff_r ** 2 + diff_g ** 2 + diff_b ** 2)
+        distances.append(distance)
+    
     min_index = distances.index(min(distances))
     return colors[min_index]
 
