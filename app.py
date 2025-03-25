@@ -210,7 +210,7 @@ def generatePhoto():
 
         # image = apply_floyd_steinberg_dithering(image)
 
-        image = apply_simple_dither(image)
+        image = apply_floyd_steinberg_dithering(image)
 
         imagePath = os.path.join("static", IMAGE_FILENAME)
         image.save(imagePath)
