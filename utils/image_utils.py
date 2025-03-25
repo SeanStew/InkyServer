@@ -121,13 +121,13 @@ def apply_floyd_steinberg_dithering(image):
             
             # Distribute the quantization error to neighboring pixels (convert to int16 before adding)
             if x + 1 < image.width:
-                pixels[y, x + 1][:3] += (quant_error * 7 / 16).astype(np.int16)
+                pixels[y, x + 1][:3] = np.clip(pixels[y, x + 1][:3] + (quant_error * 7 / 16), 0, 255).astype(np.int16)
             if x - 1 >= 0 and y + 1 < image.height:
-                pixels[y + 1, x - 1][:3] += (quant_error * 3 / 16).astype(np.int16)
+                pixels[y + 1, x - 1][:3] = np.clip(pixels[y + 1, x - 1][:3] + (quant_error * 3 / 16), 0, 255).astype(np.int16)
             if y + 1 < image.height:
-                pixels[y + 1, x][:3] += (quant_error * 5 / 16).astype(np.int16)
+                pixels[y + 1, x][:3] = np.clip(pixels[y + 1, x][:3] + (quant_error * 5 / 16), 0, 255).astype(np.int16)
             if x + 1 < image.width and y + 1 < image.height:
-                pixels[y + 1, x + 1][:3] += (quant_error * 1 / 16).astype(np.int16)
+                pixels[y + 1, x + 1][:3] = np.clip(pixels[y + 1, x + 1][:3] + (quant_error * 1 / 16), 0, 255).astype(np.int16)
     
     # Clip pixel values to be within 0-255 range after dithering
     pixels = np.clip(pixels, 0, 255)
