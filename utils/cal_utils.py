@@ -306,7 +306,7 @@ def generate_calendar_image(resolution, calendars, start_time=None, end_time=Non
                 end_time = min(23,end_time)
 
         # Image generation
-        img = Image.new('RGBA', resolution, background_color)
+        img = Image.new('RGB', resolution, background_color)
         draw = ImageDraw.Draw(img)
         titleFont = get_font("roboto-bold", title_text_size)
         textFont = get_font("roboto", event_text_size)
