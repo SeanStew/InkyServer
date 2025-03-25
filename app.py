@@ -165,7 +165,7 @@ def generateImage():
         print(f"Error generating calendar image: {e}")
         return f"Error generating calendar image: {e}", 500
 
-    # image = apply_simple_dither(image)
+    image = apply_simple_dither(image)
 
     # Save the image
     try:
