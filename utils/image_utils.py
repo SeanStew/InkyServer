@@ -98,6 +98,41 @@ def apply_simple_dither(image):
     pal_image.putpalette(flat_palette)
     return image.convert("RGB").quantize(palette=pal_image)
 
+def closest_palette_color(old_color):
+    """Finds the closest color in the palette."""
+    distances = [
+        ((old_color[0] - color[0]) ** 2 +
+         (old_color[1] - color[1]) ** 2 +
+         (old_color[2] - color[2]) ** 2)
+        for color in colors
+    ]
+    min_index = distances.index(min(distances))
+    return colors[min_index]
+
+def apply_floyd_steinberg_dithering(image):
+    """Apply Floyd-Steinberg dithering to the image."""
+    pixels = np.array(image, dtype=np.int16)  # Use int16 to allow negative values during error distribution
+    for y in range(image.height):
+        for x in range(image.width):
+            old_pixel = tuple(pixels[y, x][:3])
+            new_pixel = closest_palette_color(old_pixel)
+            pixels[y, x][:3] = new_pixel
+            quant_error = np.array(old_pixel) - np.array(new_pixel)
+            
+            # Distribute the quantization error to neighboring pixels (convert to int16 before adding)
+            if x + 1 < image.width:
+                pixels[y, x + 1][:3] += (quant_error * 7 / 16).astype(np.int16)
+            if x - 1 >= 0 and y + 1 < image.height:
+                pixels[y + 1, x - 1][:3] += (quant_error * 3 / 16).astype(np.int16)
+            if y + 1 < image.height:
+                pixels[y + 1, x][:3] += (quant_error * 5 / 16).astype(np.int16)
+            if x + 1 < image.width and y + 1 < image.height:
+                pixels[y + 1, x + 1][:3] += (quant_error * 1 / 16).astype(np.int16)
+    
+    # Clip pixel values to be within 0-255 range after dithering
+    pixels = np.clip(pixels, 0, 255)
+    return Image.fromarray(pixels.astype(np.uint8))
+
 def  convert_image_to_header(image, output_file_path):
     image_width, image_height = image.size  # Get the actual image dimensions
     buff_image = bytearray(image.tobytes('raw'))
