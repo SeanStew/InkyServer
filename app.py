@@ -233,9 +233,7 @@ def getImage():
     header_file_path = os.path.join("static", HEADER_FILENAME)
     if os.path.exists(header_file_path):
         try:
-            with open(header_file_path, 'r') as f:
-                content = f.read()
-            return content, 200, {'Content-Type': 'text/plain'}
+           return send_file(header_file_path, as_attachment=True)
         except Exception as e:
             print(f"Error sending file: {e}")
             return f"Error sending file: {e}", 500
