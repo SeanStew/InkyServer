@@ -233,7 +233,12 @@ def getImage():
     header_file_path = os.path.join("static", HEADER_FILENAME)
     if os.path.exists(header_file_path):
         try:
-            return send_file(header_file_path, as_attachment=True)
+            return send_file(
+                header_file_path,
+                as_attachment=True,
+                mimetype='text/plain',
+                download_name='calendar.h'
+            )
         except Exception as e:
             print(f"Error sending file: {e}")
             return f"Error sending file: {e}", 500
