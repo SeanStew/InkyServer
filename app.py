@@ -228,14 +228,32 @@ def generatePhoto():
 @app.route("/getImage", methods=["GET"])
 def getImage():
     """
-    Serves the pre-generated calendar.h file.
+    Serves the pre-generated calendar.h file as comma-separated hex values.
     """
     header_file_path = os.path.join("static", HEADER_FILENAME)
     if os.path.exists(header_file_path):
         try:
             with open(header_file_path, 'r') as f:
                 content = f.read()
-            return content, 200, {'Content-Type': 'text/plain'}
+                # Extract hex values from the header file content
+                # Assuming the content is in format like: const unsigned char image_data[] = {0x00, 0x01, ...};
+                hex_values = []
+                for line in content.split('\n'):
+                    if '{' in line:
+                        # Extract values between curly braces
+                        start = line.find('{') + 1
+                        end = line.find('}')
+                        if start < end:
+                            values = line[start:end].split(',')
+                            hex_values.extend([v.strip() for v in values if v.strip()])
+                
+                # Join the hex values with commas
+                formatted_content = ','.join(hex_values)
+                
+                return formatted_content, 200, {
+                    'Content-Type': 'text/plain',
+                    'Content-Length': str(len(formatted_content))
+                }
         except Exception as e:
             print(f"Error sending file: {e}")
             return f"Error sending file: {e}", 500
